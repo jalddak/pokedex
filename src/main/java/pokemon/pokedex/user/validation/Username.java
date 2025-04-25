@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = UsernameValidator.class)
 public @interface Username {
-    String message() default "한글+숫자 또는 알파벳+숫자 조합만 가능합니다.";
+    String message() default "한글, 영문, 한글+숫자 또는 영문+숫자 조합만 가능합니다.";
 
     Class<?>[] groups() default {};
 
