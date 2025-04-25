@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="admin_header(title, links)">
+
+    <title th:replace="${title}">Pokédex 관리자</title>
+
+    <!-- 공통 -->
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Bootstrap 5.3.5 CDN -->
+    <link href="../../static/assets/css/bootstrap.min.css"
+          rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <!-- 파비콘 -->
+    <link href="../../static/assets/monsterball.svg"
+          rel="icon" th:href="@{/assets/monsterball.svg}" type="image/svg+xml">
+
+    <!-- 추가 -->
+    <th:block th:replace="${links}"/>
+</head>

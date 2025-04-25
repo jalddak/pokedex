@@ -1,0 +1,126 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(to bottom, red 50%, white 50%);
+    position: relative;
+}
+
+.center-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background-color: black;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.contents-container {
+    max-width: 400px;
+    width: 100%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    border: 6px solid black;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-contents {
+    background-color: red;
+    border: 2px solid black;
+    color: black;
+    font-weight: bold;
+}
+
+.btn-contents:hover {
+    background-color: darkred;
+    color: white;
+}
+
+.login-links {
+    font-size: 0.875rem;
+    color: #aaa;
+}
+
+.login-links a {
+    color: #aaa;
+    margin: 0 5px;
+    text-decoration: none;
+}
+
+.login-links a:hover {
+    text-decoration: underline;
+}
+
+/* 반응형: 화면 작아지면 위에서부터 정렬 */
+@media (max-height: 750px) {
+    .container {
+        display: block;
+        height: auto;
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .contents-container {
+        margin: 0 auto;
+    }
+
+    .alert-container {
+        margin: 0 auto;
+    }
+
+    .center-line {
+        display: none; /* 너무 작을 땐 중앙선 숨김 처리 */
+    }
+
+    body, html {
+        background: red;
+    }
+}
+
+.field-error {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* 경고 메시지 스타일 */
+
+.alert-container {
+    max-width: 400px;
+    width: 100%;
+    background-color: #f8d7da;
+    padding: 30px;
+    border-radius: 8px;
+    border: 6px solid black;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.alert-message {
+    background-color: #f8d7da; /* 연한 핑크색 배경 */
+    /*border: 1px solid #f5c6cb; !* 약간 진한 핑크색 테두리 *!*/
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.alert-title {
+    font-size: 1.5rem;
+    color: #721c24; /* 진한 적갈색 글씨 */
+    font-weight: bold;
+    margin: 0;
+}
+
+.alert-description {
+    font-size: 0.875rem;
+    color: #721c24; /* 진한 적갈색 글씨 */
+    margin-top: 5px;
+}

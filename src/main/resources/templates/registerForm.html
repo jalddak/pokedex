@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/headLayout :: admin_header(~{::title}, ~{::link})}">
+
+    <title>회원가입 - Pokédex</title>
+
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}">
+
+
+</head>
+<body>
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<div class="container">
+    <div class="contents-container">
+        <h2 class="text-center mb-4">
+            <a class="text-decoration-none text-dark fw-bold" th:href="@{/}">Pokédex</a>
+        </h2>
+        <h3 class="text-center mb-4">회원가입</h3>
+        <form id="signupForm" method="post" th:action th:object="${user}">
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1 small" for="username" th:text="#{label.user.username}"></label>
+                <input class="form-control" id="username" name="username" onblur="this.placeholder='오박사'"
+                       onfocus="this.placeholder=''"
+                       placeholder="오박사"
+                       required="required"
+                       th:errorclass="field-error"
+                       th:field="*{username}"
+                       type="text">
+                <div class="mt-1 small text-muted"
+                     th:if="!${#fields.hasErrors('username')} and (*{username} == null or *{username} == '')"
+                     th:text="#{user.username.valid1}"></div>
+                <div class="small text-muted"
+                     th:if="!${#fields.hasErrors('username')} and (*{username} == null or *{username} == '')"
+                     th:text="#{user.username.valid2}"></div>
+                <div class="field-error mt-1 small" th:errors="*{username}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1 small" for="loginId" th:text="#{label.user.loginId}"></label>
+                <input class="form-control" id="loginId" name="loginId" onblur="this.placeholder='아이디'"
+                       onfocus="this.placeholder=''"
+                       placeholder="아이디"
+                       required="required"
+                       th:errorclass="field-error"
+                       th:field="*{loginId}"
+                       type="text">
+                <div class="mt-1 small text-muted"
+                     th:if="!${#fields.hasErrors('loginId')} and (*{loginId} == null or *{loginId} == '')"
+                     th:text="#{user.loginId.valid1}"></div>
+                <div class="small text-muted"
+                     th:if="!${#fields.hasErrors('loginId')} and (*{loginId} == null or *{loginId} == '')"
+                     th:text="#{user.loginId.valid2}"></div>
+                <div class="field-error mt-1 small" th:errors="*{loginId}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1 small" for="email" th:text="#{label.user.email}"></label>
+                <input class="form-control" id="email" name="email" onblur="this.placeholder='email@email.com'"
+                       onfocus="this.placeholder=''"
+                       placeholder="email@email.com"
+                       required="required" th:errorclass="field-error"
+                       th:field="*{email}"
+                       type="email">
+                <div class="field-error mt-1 small" th:errors="*{email}"></div>
+
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1 small" for="password" th:text="#{label.user.password}"></label>
+                <input class="form-control" id="password" name="password" onblur="this.placeholder='********'"
+                       onfocus="this.placeholder=''"
+                       placeholder="********"
+                       required="required"
+                       th:errorclass="field-error"
+                       th:field="*{password}"
+                       type="password">
+                <div class="mt-1 small text-muted"
+                     th:if="!${#fields.hasErrors('password')} and (*{password} == null or *{password} == '')"
+                     th:text="#{user.password.valid1}"></div>
+                <div class="small text-muted"
+                     th:if="!${#fields.hasErrors('password')} and (*{password} == null or *{password} == '')"
+                     th:text="#{user.password.valid2}"></div>
+                <div class="field-error mt-1 small" th:errors="*{password}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1 small" for="confirmPassword" th:text="#{label.user.confirmPassword}"></label>
+                <input class="form-control" id="confirmPassword" name="confirmPassword"
+                       onblur="this.placeholder='********'"
+                       onfocus="this.placeholder=''"
+                       placeholder="********"
+                       required="required"
+                       th:field="*{confirmPassword}" type="password">
+                <div class="field-error mt-1 small" th:errors="*{passwordConfirmed}"></div>
+
+            </div>
+            <div>
+                <button class="mt-1 btn btn-contents w-100" type="submit">회원가입
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
