@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/headLayout :: admin_header(~{::title}, ~{::link})}">
+
+    <title>회원가입 완료 - Pokédex</title>
+
+    <!-- 기존 CSS 재사용 -->
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}">
+
+</head>
+<body>
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<div class="container">
+    <div class="contents-container text-center">
+        <h2 class="mb-4">
+            <span class="fw-bold" th:text="${username}"></span>
+            <span>님</span>
+        </h2>
+
+        <p class="small text-muted mb-4">회원가입을 축하합니다!</p>
+
+        <a class="btn btn-contents w-100" th:href="@{/}">닫기</a>
+    </div>
+</div>
+
+</body>
+</html>
