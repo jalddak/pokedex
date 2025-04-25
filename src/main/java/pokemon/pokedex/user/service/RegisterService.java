@@ -4,7 +4,7 @@ import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 
 public interface RegisterService {
-    void validateDuplicatedLoginId(String loginId);
-
     RegisterResponseDTO addUser(RegisterDTO registerDTO);
+
+    void validateDuplicatedLoginId(String loginId);
 }
