@@ -42,4 +42,9 @@ public class MemoryUserRepository implements UserRepository {
     public boolean existsByLoginId(String loginId) {
         return findAll().stream().anyMatch(user -> user.getLoginId().equals(loginId));
     }
+
+    @Override
+    public Optional<User> findByLoginId(String loginId) {
+        return findAll().stream().filter(user -> user.getLoginId().equals(loginId)).findFirst();
+    }
 }

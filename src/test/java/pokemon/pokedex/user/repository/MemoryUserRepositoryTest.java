@@ -67,5 +67,19 @@ class MemoryUserRepositoryTest {
         assertThat(memoryUserRepository.existsByLoginId("not")).isFalse();
     }
 
+    @Test
+    @DisplayName("로그인 아이디로 유저 찾기")
+    void findByLoginId() {
+        User user = new User();
+        user.setLoginId("user");
+
+        memoryUserRepository.save(user);
+
+        Optional<User> findUser = memoryUserRepository.findByLoginId(user.getLoginId());
+        Optional<User> notUser = memoryUserRepository.findByLoginId("not");
+
+        assertThat(findUser.orElse(null)).isEqualTo(user);
+        assertThat(notUser.isPresent()).isFalse();
+    }
 
 }
