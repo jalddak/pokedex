@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/headLayout :: header(~{::title}, ~{::link})}">
+
+    <title th:text="|${status} - ${error}|"></title>
+
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/error.css}">
+
+</head>
+<body>
+
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<!-- 에러 컨텐츠 -->
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="error-content">
+        <!-- 에러 코드 -->
+        <h1 class="error-code" th:text="${status}"></h1> <!-- 에러 코드 -->
+
+        <!-- 상태 코드 이름 -->
+        <h2 class="status-text" th:text="${error}"></h2> <!-- 상태 코드 이름 -->
+
+        <!-- 에러 설명 -->
+        <p class="error-message" th:text="'서버에서 오류가 발생했습니다. 나중에 다시 시도해주세요.'"></p>
+
+        <!-- 버튼들 -->
+        <div class="d-flex justify-content-center gap-3">
+            <a class="btn btn-custom btn-home" href="/" role="button" th:href="@{/}">홈으로</a>
+            <a class="btn btn-custom btn-back" href="javascript:history.back()" role="button">이전 페이지</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
