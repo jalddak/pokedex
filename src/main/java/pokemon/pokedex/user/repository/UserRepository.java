@@ -15,4 +15,6 @@ public interface UserRepository {
     List<User> findAll();
 
     boolean existsByLoginId(String loginId);
+
+    Optional<User> findByLoginId(String loginId);
 }
