@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/headLayout :: header(~{::title}, ~{::link})}">
+
+    <title>Pokédex</title>
+
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}">
+</head>
+<body>
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<div class="container">
+    <div class="contents-container">
+        <h2 class="text-center mb-4">
+            <a class="text-decoration-none text-dark fw-bold">Pokédex</a>
+        </h2>
+        <a class="btn btn-contents w-100 mb-3" th:href="@{/login}">로그인</a>
+        <a class="btn btn-contents w-100" th:href="@{/register}">회원가입</a>
+    </div>
+</div>
+
+</body>
+</html>
