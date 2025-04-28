@@ -53,21 +53,6 @@ class RegisterServiceImplTest {
     }
 
     @Test
-    @DisplayName("중복 아이디 아니면 정상작동")
-    void validateDuplicatedLoginId_normal() {
-        String loginId = UUID.randomUUID().toString();
-        doReturn(false).when(userRepository).existsByLoginId(any(String.class));
-
-        registerServiceImpl.validateDuplicatedLoginId(loginId);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(userRepository).existsByLoginId(captor.capture());
-
-        String usedLoginId = captor.getValue();
-        assertThat(usedLoginId).isEqualTo(loginId);
-    }
-
-    @Test
     @DisplayName("같은 비밀번호를 입력해도 다른 값이 나오는지 확인")
     void encodedPassword() {
         RegisterDTO registerDTO = new RegisterDTO();
@@ -92,6 +77,21 @@ class RegisterServiceImplTest {
         log.info("registerDTO password: {}", registerDTO.getPassword());
         log.info("user1 password: {}", usedUser1.getPassword());
         log.info("user2 password: {}", usedUser2.getPassword());
+    }
+
+    @Test
+    @DisplayName("중복 아이디 아니면 정상작동")
+    void validateDuplicatedLoginId_normal() {
+        String loginId = UUID.randomUUID().toString();
+        doReturn(false).when(userRepository).existsByLoginId(any(String.class));
+
+        registerServiceImpl.validateDuplicatedLoginId(loginId);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(userRepository).existsByLoginId(captor.capture());
+
+        String usedLoginId = captor.getValue();
+        assertThat(usedLoginId).isEqualTo(loginId);
     }
 
     @Test
