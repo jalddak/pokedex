@@ -2,6 +2,7 @@ package pokemon.pokedex;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.Role;
@@ -21,6 +22,8 @@ public class TestData {
 
     @PostConstruct
     public void init() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
         RegisterDTO adminDto = new RegisterDTO();
         adminDto.setUsername("관리자");
         adminDto.setLoginId("admin");
@@ -29,6 +32,7 @@ public class TestData {
         adminDto.setConfirmPassword("test");
 
         User admin = User.createByRegisterDto(adminDto);
+        admin.setPassword(encoder.encode(admin.getPassword()));
         admin.setRole(Role.ADMIN);
 
         RegisterDTO userDto1 = new RegisterDTO();
@@ -39,6 +43,7 @@ public class TestData {
         userDto1.setConfirmPassword("test");
 
         User user1 = User.createByRegisterDto(userDto1);
+        user1.setPassword(encoder.encode(user1.getPassword()));
 
         RegisterDTO userDto2 = new RegisterDTO();
         userDto2.setUsername("유저2");
@@ -48,6 +53,7 @@ public class TestData {
         userDto2.setConfirmPassword("test");
 
         User user2 = User.createByRegisterDto(userDto2);
+        user2.setPassword(encoder.encode(user2.getPassword()));
         user2.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
 
         userRepository.save(admin);

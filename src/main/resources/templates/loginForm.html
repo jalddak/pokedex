@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/headLayout :: header(~{::title}, ~{::link})}">
+
+    <title>로그인 - Pokédex</title>
+
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}">
+</head>
+<body>
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<div class="container">
+    <div class="contents-container">
+        <h2 class="text-center mb-4">
+            <a class="text-decoration-none text-dark fw-bold" th:href="@{/}">Pokédex</a>
+        </h2>
+        <form id="loginForm" method="post" th:action th:object="${user}">
+            <div class="mb-3">
+                <input class="form-control" id="username" name="username" placeholder="아이디" required="required"
+                       th:field="*{loginId}" type="text">
+                <div class="invalid-feedback">아이디를 입력해주세요.</div>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control" id="password" name="password" placeholder="비밀번호" required="required"
+                       th:field="*{password}" type="password">
+                <div class="invalid-feedback">비밀번호를 입력해주세요.</div>
+            </div>
+            <div th:if="${#fields.hasGlobalErrors()}">
+                <p class="field-error mt-1 small" th:each="err : ${#fields.globalDetailedErrors()}"
+                   th:if="${err.code == 'loginFailed'}"
+                   th:text="${err.getMessage()}"></p>
+            </div>
+
+            <div>
+                <button class="btn btn-contents w-100 mt-1" type="submit">로그인
+                </button>
+            </div>
+        </form>
+
+        <!-- 추가 링크들 -->
+        <div class="text-center mt-3 login-links">
+            <a href="#">아이디 찾기</a> |
+            <a href="#">비밀번호 찾기</a> |
+            <a th:href="@{/register}">회원가입</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
