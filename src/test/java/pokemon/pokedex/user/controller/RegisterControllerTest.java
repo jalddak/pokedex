@@ -160,7 +160,7 @@ public class RegisterControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
-                        .sessionAttr(SessionConst.USER_DTO, "something"))
+                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
