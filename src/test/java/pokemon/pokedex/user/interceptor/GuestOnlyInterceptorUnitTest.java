@@ -57,6 +57,11 @@ class GuestOnlyInterceptorUnitTest {
                         .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
     }
 
 }
