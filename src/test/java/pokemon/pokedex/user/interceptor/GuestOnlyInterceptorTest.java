@@ -44,8 +44,13 @@ public class GuestOnlyInterceptorTest {
     @ParameterizedTest
     @ValueSource(strings = {"/login", "/register"})
     @DisplayName("로그인 유저 접근")
-    void loginUser(String url) throws Exception {
+    void loginUser_get(String url) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
                         .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
