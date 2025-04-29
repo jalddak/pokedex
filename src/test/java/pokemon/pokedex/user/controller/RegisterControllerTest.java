@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;

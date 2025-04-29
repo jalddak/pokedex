@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.LoginResponseDTO;

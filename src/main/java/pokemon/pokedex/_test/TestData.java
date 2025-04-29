@@ -1,4 +1,4 @@
-package pokemon.pokedex;
+package pokemon.pokedex._test;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

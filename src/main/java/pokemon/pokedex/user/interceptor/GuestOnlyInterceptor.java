@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.servlet.HandlerInterceptor;
-import pokemon.pokedex.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 
 public class GuestOnlyInterceptor implements HandlerInterceptor {
 
