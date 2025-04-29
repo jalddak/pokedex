@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import pokemon.pokedex._common.HomeController;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.LoginResponseDTO;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

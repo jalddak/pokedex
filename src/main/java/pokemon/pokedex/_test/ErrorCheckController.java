@@ -1,4 +1,4 @@
-package pokemon.pokedex;
+package pokemon.pokedex._test;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.GetMapping;
