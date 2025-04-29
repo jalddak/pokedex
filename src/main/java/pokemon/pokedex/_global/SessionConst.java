@@ -1,4 +1,4 @@
-package pokemon.pokedex;
+package pokemon.pokedex._global;
 
 public class SessionConst {
     public static final String USERNAME = "username";
