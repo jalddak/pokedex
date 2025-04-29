@@ -3,9 +3,11 @@ package pokemon.pokedex.user.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 import pokemon.pokedex._global.SessionConst;
 
+@Slf4j
 public class GuestOnlyInterceptor implements HandlerInterceptor {
 
     @Override
@@ -13,6 +15,7 @@ public class GuestOnlyInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute(SessionConst.LOGIN_RESPONSE_DTO) != null) {
+            log.debug("이미 로그인 된 사용자: {}", request.getRequestURI());
             response.sendRedirect(request.getContextPath() + "/");
             return false;
         }
