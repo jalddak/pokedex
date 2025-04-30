@@ -35,8 +35,8 @@ class GuestOnlyInterceptorUnitTest {
 
     private static Stream<Arguments> provideArguments() {
         return Stream.of(
-                Arguments.of("/login", "loginForm"),
-                Arguments.of("/register", "registerForm")
+                Arguments.of("/login", "login-form"),
+                Arguments.of("/register", "register-form")
         );
     }
 

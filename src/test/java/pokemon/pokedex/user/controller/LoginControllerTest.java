@@ -63,7 +63,7 @@ public class LoginControllerTest {
     void loginForm() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/login"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("loginForm"))
+                .andExpect(view().name("login-form"))
                 .andExpect(model().attributeExists("user"));
     }
 
@@ -99,7 +99,7 @@ public class LoginControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("loginForm"))
+                .andExpect(view().name("login-form"))
                 .andExpect(model().attributeHasErrors("user"));
 
     }
@@ -116,7 +116,7 @@ public class LoginControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("loginForm"))
+                .andExpect(view().name("login-form"))
                 .andExpect(model().attributeHasFieldErrorCode("user", field, errorCode));
     }
 
