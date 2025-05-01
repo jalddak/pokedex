@@ -1,11 +1,12 @@
 <svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_2_2)">
-<circle cx="500" cy="500" r="492" fill="#D80000" stroke="black" stroke-width="16"/>
+<circle cx="500" cy="500" r="475" fill="#D80000" stroke="black" stroke-width="50"/>
 <g clip-path="url(#clip1_2_2)">
-<circle cx="500" cy="500" r="492" fill="white" stroke="black" stroke-width="16"/>
+<circle cx="500" cy="500" r="475" fill="white" stroke="black" stroke-width="50"/>
 </g>
-<line x1="3" y1="500" x2="993" y2="500" stroke="black" stroke-width="16"/>
-<circle cx="500" cy="500" r="108" fill="white" stroke="black" stroke-width="16"/>
+<line x1="5" y1="500" x2="995" y2="500" stroke="black" stroke-width="50"/>
+<circle cx="500" cy="500" r="125" fill="white" stroke="black" stroke-width="50"/>
+<circle cx="500" cy="500" r="50" fill="black"/>
 </g>
 <defs>
 <clipPath id="clip0_2_2">

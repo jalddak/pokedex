@@ -36,7 +36,7 @@ class HomeControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, loginResponseDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("loginHome"))
+                .andExpect(view().name("login-home"))
                 .andExpect(model().attribute("user", loginResponseDTO));
     }
 

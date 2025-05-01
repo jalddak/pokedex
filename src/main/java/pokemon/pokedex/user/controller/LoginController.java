@@ -26,7 +26,7 @@ public class LoginController {
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("user") LoginDTO loginDTO) {
         log.debug("LoginController: loginForm");
-        return "loginForm";
+        return "login-form";
     }
 
     @PostMapping("/login")
@@ -44,7 +44,7 @@ public class LoginController {
         }
 
         if (bindingResult.hasErrors()) {
-            return "loginForm";
+            return "login-form";
         }
 
         HttpSession session = request.getSession();
