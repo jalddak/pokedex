@@ -26,7 +26,7 @@ public class RegisterController {
 
     @GetMapping()
     public String registerForm(@ModelAttribute("user") RegisterDTO registerDTO) {
-        return "registerForm";
+        return "register-form";
     }
 
     @PostMapping()
@@ -42,7 +42,7 @@ public class RegisterController {
         }
 
         if (bindingResult.hasErrors()) {
-            return "registerForm";
+            return "register-form";
         }
 
         RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
@@ -66,6 +66,6 @@ public class RegisterController {
         String username = (String) session.getAttribute(SessionConst.USERNAME);
         session.invalidate();
         model.addAttribute("username", username);
-        return "registerSuccess";
+        return "register-success";
     }
 }

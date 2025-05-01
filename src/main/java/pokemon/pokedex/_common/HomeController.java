@@ -23,6 +23,6 @@ public class HomeController {
         }
 
         model.addAttribute("user", loginResponseDTO);
-        return "loginHome";
+        return "login-home";
     }
 }

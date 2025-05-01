@@ -92,7 +92,7 @@ public class RegisterControllerTest {
     void registerForm() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/register"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registerForm"))
+                .andExpect(view().name("register-form"))
                 .andExpect(model().attributeExists("user"));
     }
 
@@ -116,7 +116,7 @@ public class RegisterControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/register")
                         .flashAttr("user", registerDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registerForm"))
+                .andExpect(view().name("register-form"))
                 .andExpect(model().attributeHasFieldErrorCode("user", "loginId", "duplicateLoginId"));
 
     }
@@ -138,7 +138,7 @@ public class RegisterControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/register")
                         .flashAttr("user", registerDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registerForm"))
+                .andExpect(view().name("register-form"))
                 .andExpect(model().attributeHasFieldErrorCode("user", field, errorCode));
     }
 
@@ -148,7 +148,7 @@ public class RegisterControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
                         .sessionAttr(SessionConst.USERNAME, registerDTO.getUsername()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registerSuccess"))
+                .andExpect(view().name("register-success"))
                 .andExpect(model().attribute("username", registerDTO.getUsername()));
     }
 
