@@ -1,4 +1,4 @@
-package pokemon.pokedex._common;
+package pokemon.pokedex.admin.interceptor;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,36 +8,40 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.CheckedUserDTO;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class HomeControllerTest {
+public class AdminCheckInterceptorTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("일반 홈")
-    void home() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("home"));
+    @DisplayName("일반 유저 접근")
+    void accessNormalUser() throws Exception {
+        CheckedUserDTO checkedUserDTO = new CheckedUserDTO();
+        checkedUserDTO.setRole(Role.NORMAL);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin")
+                        .sessionAttr(SessionConst.CHECKED_USER_DTO, checkedUserDTO))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/alert"));
     }
 
     @Test
-    @DisplayName("로그인 홈")
-    void loginHome() throws Exception {
+    @DisplayName("관리자 접근")
+    void accessAdmin() throws Exception {
         CheckedUserDTO checkedUserDTO = new CheckedUserDTO();
-        checkedUserDTO.setUsername("testUsername");
+        checkedUserDTO.setRole(Role.ADMIN);
+        checkedUserDTO.setUsername("admin");
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/")
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin")
                         .sessionAttr(SessionConst.CHECKED_USER_DTO, checkedUserDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("login-home"))
-                .andExpect(model().attribute("user", checkedUserDTO));
+                .andExpect(view().name("admin/home"));
     }
-
 }

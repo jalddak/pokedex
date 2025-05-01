@@ -3,6 +3,7 @@ package pokemon.pokedex.user.repository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 
 import java.util.Optional;
@@ -80,6 +81,36 @@ class MemoryUserRepositoryTest {
 
         assertThat(findUser.orElse(null)).isEqualTo(user);
         assertThat(notUser.isPresent()).isFalse();
+    }
+
+    @Test
+    @DisplayName("유저의 AdminRequestStatus 업데이트 성공")
+    void updateAdminRequestStatusById_success() {
+        User user = new User();
+        user.setAdminRequestStatus(AdminRequestStatus.NONE);
+
+        User savedUser = memoryUserRepository.save(user);
+
+        int updateCnt = memoryUserRepository.updateAdminRequestStatusById(savedUser.getId(), AdminRequestStatus.REQUESTED);
+        assertThat(updateCnt).isEqualTo(1);
+
+        User findUser = memoryUserRepository.findById(savedUser.getId()).orElse(null);
+        assertThat(findUser.getAdminRequestStatus()).isEqualTo(AdminRequestStatus.REQUESTED);
+    }
+
+    @Test
+    @DisplayName("유저가 없거나 바꾸려는 값이 이미 그 값인 경우 실패")
+    void updateAdminRequestStatusById_fail() {
+        User user = new User();
+        user.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
+
+        User savedUser = memoryUserRepository.save(user);
+
+        int noUserUpdateCnt = memoryUserRepository.updateAdminRequestStatusById(-1L, AdminRequestStatus.NONE);
+        int alreadyUpdatedCnt = memoryUserRepository.updateAdminRequestStatusById(savedUser.getId(), AdminRequestStatus.REQUESTED);
+
+        assertThat(noUserUpdateCnt).isEqualTo(0);
+        assertThat(alreadyUpdatedCnt).isEqualTo(0);
     }
 
 }

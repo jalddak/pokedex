@@ -14,7 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
     public FilterRegistrationBean noCacheFilter() {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(new NoCacheFilter());
-        filterRegistrationBean.addUrlPatterns("/login", "/register");
+        filterRegistrationBean.addUrlPatterns("/login", "/register", "/admin/*");
 
         return filterRegistrationBean;
     }

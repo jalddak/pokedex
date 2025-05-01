@@ -9,8 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pokemon.pokedex.user.domain.User;
+import pokemon.pokedex.user.dto.CheckedUserDTO;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.repository.UserRepository;
 
@@ -44,13 +44,13 @@ class LoginServiceImplTest {
         user.setPassword(encodedPassword);
         doReturn(Optional.of(user)).when(userRepository).findByLoginId(any(String.class));
 
-        LoginResponseDTO loginResponseDTO = loginServiceImpl.checkLogin(loginDTO);
+        CheckedUserDTO checkedUserDTO = loginServiceImpl.checkLogin(loginDTO);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(userRepository, times(1)).findByLoginId(captor.capture());
         String usedLoginId = captor.getValue();
         assertThat(usedLoginId).isEqualTo(loginDTO.getLoginId());
-        assertThat(loginResponseDTO.getLoginId()).isEqualTo(user.getLoginId());
+        assertThat(checkedUserDTO.getLoginId()).isEqualTo(user.getLoginId());
     }
 
     @Test

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{admin/layout/admin-layout :: adminLayout (~{::title}, ~{::link}, ~{::content})}"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Pokédex 관리자</title>
+    <th:block th:fragment="link"></th:block>
+</head>
+<body>
+
+<!-- 콘텐츠 -->
+<div class="container mt-5" th:fragment="content">
+    <div class="row">
+        <!-- 유저 관리 카드 -->
+        <div class="col-md-4 mb-4">
+            <a class="card shadow-sm text-decoration-none" href="#">
+                <div class="card-body text-center">
+                    <h5 class="card-title">유저 관리</h5>
+                </div>
+            </a>
+        </div>
+
+        <!-- 포켓몬 관리 카드 -->
+        <div class="col-md-4 mb-4">
+            <a class="card shadow-sm text-decoration-none" href="#">
+                <div class="card-body text-center">
+                    <h5 class="card-title">포켓몬 관리</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

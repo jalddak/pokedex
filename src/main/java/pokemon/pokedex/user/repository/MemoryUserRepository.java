@@ -2,10 +2,12 @@ package pokemon.pokedex.user.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Repository
@@ -46,5 +48,16 @@ public class MemoryUserRepository implements UserRepository {
     @Override
     public Optional<User> findByLoginId(String loginId) {
         return findAll().stream().filter(user -> user.getLoginId().equals(loginId)).findFirst();
+    }
+
+    @Override
+    public int updateAdminRequestStatusById(Long id, AdminRequestStatus newStatus) {
+        AtomicInteger result = new AtomicInteger(0);
+        findById(id).ifPresent(user -> {
+            if (user.getAdminRequestStatus().equals(newStatus)) return;
+            user.setAdminRequestStatus(newStatus);
+            result.incrementAndGet();
+        });
+        return result.get();
     }
 }

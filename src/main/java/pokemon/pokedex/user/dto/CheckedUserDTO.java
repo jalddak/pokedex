@@ -8,7 +8,7 @@ import pokemon.pokedex.user.domain.User;
 
 @Getter
 @Setter
-public class LoginResponseDTO {
+public class CheckedUserDTO {
 
     private Long id;
     private String loginId;
@@ -16,10 +16,10 @@ public class LoginResponseDTO {
     private Role role;
     private AdminRequestStatus adminRequestStatus;
 
-    public LoginResponseDTO() {
+    public CheckedUserDTO() {
     }
 
-    private LoginResponseDTO(User user) {
+    private CheckedUserDTO(User user) {
         this.id = user.getId();
         this.loginId = user.getLoginId();
         this.username = user.getUsername();
@@ -27,7 +27,7 @@ public class LoginResponseDTO {
         this.adminRequestStatus = user.getAdminRequestStatus();
     }
 
-    public static LoginResponseDTO createByUser(User user) {
-        return new LoginResponseDTO(user);
+    public static CheckedUserDTO createByUser(User user) {
+        return new CheckedUserDTO(user);
     }
 }

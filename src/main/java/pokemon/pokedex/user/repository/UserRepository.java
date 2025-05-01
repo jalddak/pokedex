@@ -1,6 +1,7 @@
 package pokemon.pokedex.user.repository;
 
 
+import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface UserRepository {
     boolean existsByLoginId(String loginId);
 
     Optional<User> findByLoginId(String loginId);
+
+    int updateAdminRequestStatusById(Long id, AdminRequestStatus newStatus);
 }

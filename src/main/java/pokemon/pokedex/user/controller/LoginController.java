@@ -10,9 +10,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex.user.dto.CheckedUserDTO;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.service.LoginService;
 
@@ -33,12 +34,13 @@ public class LoginController {
     public String login(
             @ModelAttribute("user") @Valid LoginDTO loginDTO,
             BindingResult bindingResult,
+            @RequestParam(defaultValue = "/") String redirectURI,
             HttpServletRequest request) {
         log.debug("LoginController: login 시도 {}", loginDTO.getLoginId());
 
-        LoginResponseDTO loginResponseDTO = null;
+        CheckedUserDTO checkedUserDTO = null;
         try {
-            loginResponseDTO = loginService.checkLogin(loginDTO);
+            checkedUserDTO = loginService.checkLogin(loginDTO);
         } catch (LoginFailedException e) {
             bindingResult.reject("loginFailed", e.getMessage());
         }
@@ -48,10 +50,10 @@ public class LoginController {
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute(SessionConst.LOGIN_RESPONSE_DTO, loginResponseDTO);
+        session.setAttribute(SessionConst.CHECKED_USER_DTO, checkedUserDTO);
         session.setMaxInactiveInterval(1800);
 
-        return "redirect:/";
+        return "redirect:" + redirectURI;
     }
 
     @PostMapping("/logout")

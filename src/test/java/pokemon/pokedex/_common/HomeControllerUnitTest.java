@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.CheckedUserDTO;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -28,13 +28,13 @@ class HomeControllerUnitTest {
     @Test
     @DisplayName("로그인 홈")
     void loginHome() throws Exception {
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-        loginResponseDTO.setUsername("testUsername");
+        CheckedUserDTO checkedUserDTO = new CheckedUserDTO();
+        checkedUserDTO.setUsername("testUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, loginResponseDTO))
+                        .sessionAttr(SessionConst.CHECKED_USER_DTO, checkedUserDTO))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login-home"))
-                .andExpect(model().attribute("user", loginResponseDTO));
+                .andExpect(model().attribute("user", checkedUserDTO));
     }
 }

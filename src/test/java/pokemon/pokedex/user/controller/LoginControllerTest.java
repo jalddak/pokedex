@@ -15,8 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.User;
+import pokemon.pokedex.user.dto.CheckedUserDTO;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.LoginService;
@@ -77,14 +77,30 @@ public class LoginControllerTest {
 
         userRepository.save(user);
 
-        LoginResponseDTO expectedLoginResponseDTO = loginService.checkLogin(loginDTO);
+        CheckedUserDTO expectedCheckedUserDTO = loginService.checkLogin(loginDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(request().sessionAttribute(SessionConst.LOGIN_RESPONSE_DTO,
-                        Matchers.samePropertyValuesAs(expectedLoginResponseDTO)));
+                .andExpect(request().sessionAttribute(SessionConst.CHECKED_USER_DTO,
+                        Matchers.samePropertyValuesAs(expectedCheckedUserDTO)));
+    }
+
+    @Test
+    @DisplayName("로그인 성공 - redirectURI")
+    void loginRedirectURI() throws Exception {
+        User user = new User();
+        user.setLoginId(loginDTO.getLoginId());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.setPassword(encoder.encode(loginDTO.getPassword()));
+
+        userRepository.save(user);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/login?redirectURI=/admin")
+                        .flashAttr("user", loginDTO))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin"));
     }
 
     @Test
@@ -128,7 +144,7 @@ public class LoginControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, "something"))
+                        .sessionAttr(SessionConst.CHECKED_USER_DTO, "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 

@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.controller.LoginController;
 import pokemon.pokedex.user.controller.RegisterController;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.CheckedUserDTO;
 import pokemon.pokedex.user.service.LoginService;
 import pokemon.pokedex.user.service.RegisterService;
 
@@ -54,12 +54,12 @@ class GuestOnlyInterceptorUnitTest {
     @DisplayName("유저 접근")
     void loginUser(String url) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
+                        .sessionAttr(SessionConst.CHECKED_USER_DTO, new CheckedUserDTO()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(url)
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, new LoginResponseDTO()))
+                        .sessionAttr(SessionConst.CHECKED_USER_DTO, new CheckedUserDTO()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
