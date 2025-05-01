@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.service.LoginService;
 
@@ -63,16 +63,16 @@ class LoginControllerUnitTest {
     @Test
     @DisplayName("POST 로그인 성공")
     void loginSuccess() throws Exception {
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-        loginResponseDTO.setLoginId(loginDTO.getLoginId());
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setLoginId(loginDTO.getLoginId());
 
-        doReturn(loginResponseDTO).when(loginService).checkLogin(any(LoginDTO.class));
+        doReturn(sessionUserDTO).when(loginService).checkLogin(any(LoginDTO.class));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(request().sessionAttribute(SessionConst.LOGIN_RESPONSE_DTO, loginResponseDTO));
+                .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO));
 
         ArgumentCaptor<LoginDTO> captor = ArgumentCaptor.forClass(LoginDTO.class);
         verify(loginService).checkLogin(captor.capture());
@@ -119,7 +119,7 @@ class LoginControllerUnitTest {
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, "something"))
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 

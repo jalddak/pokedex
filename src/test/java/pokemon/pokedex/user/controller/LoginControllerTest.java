@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.LoginService;
@@ -77,14 +77,14 @@ public class LoginControllerTest {
 
         userRepository.save(user);
 
-        LoginResponseDTO expectedLoginResponseDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO expectedSessionUserDTO = loginService.checkLogin(loginDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(request().sessionAttribute(SessionConst.LOGIN_RESPONSE_DTO,
-                        Matchers.samePropertyValuesAs(expectedLoginResponseDTO)));
+                .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO,
+                        Matchers.samePropertyValuesAs(expectedSessionUserDTO)));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class LoginControllerTest {
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.LOGIN_RESPONSE_DTO, "something"))
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 

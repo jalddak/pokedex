@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.service.LoginService;
 
@@ -36,9 +36,9 @@ public class LoginController {
             HttpServletRequest request) {
         log.debug("LoginController: login 시도 {}", loginDTO.getLoginId());
 
-        LoginResponseDTO loginResponseDTO = null;
+        SessionUserDTO sessionUserDTO = null;
         try {
-            loginResponseDTO = loginService.checkLogin(loginDTO);
+            sessionUserDTO = loginService.checkLogin(loginDTO);
         } catch (LoginFailedException e) {
             bindingResult.reject("loginFailed", e.getMessage());
         }
@@ -48,7 +48,7 @@ public class LoginController {
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute(SessionConst.LOGIN_RESPONSE_DTO, loginResponseDTO);
+        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
         session.setMaxInactiveInterval(1800);
 
         return "redirect:/";

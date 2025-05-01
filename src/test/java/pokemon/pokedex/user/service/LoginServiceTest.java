@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.LoginResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
@@ -46,8 +46,8 @@ class LoginServiceTest {
         user.setPassword(encoder.encode(loginDTO.getPassword()));
         userRepository.save(user);
 
-        LoginResponseDTO loginResponseDTO = loginService.checkLogin(loginDTO);
-        assertThat(loginResponseDTO.getLoginId()).isEqualTo(loginDTO.getLoginId());
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        assertThat(sessionUserDTO.getLoginId()).isEqualTo(loginDTO.getLoginId());
     }
 
     @Test
