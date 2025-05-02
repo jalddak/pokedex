@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko" th:fragment="adminLayout (realTitle, detailCss, content)" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head-layout :: header(~{::title}, ~{::link})}">
+    <title th:replace="${realTitle}">navSideMenu - Pokédex 관리자</title>
+    <link href="../../../static/assets/css/navSideMenu.css" rel="stylesheet" th:href="@{/assets/css/navSideMenu.css}">
+    <link href="../../../static/assets/css/webfonts/all.min.css" rel="stylesheet"
+          th:href="@{/assets/css/webfonts/all.min.css}">
+
+    <!-- 추가 -->
+    <link th:replace="${detailCss}"/>
+</head>
+<body>
+<div th:replace="~{admin/fragment/navbar :: navbar}"></div>
+<div th:replace="${content}"></div>
+<div th:replace="~{admin/fragment/offcanvas :: offcanvas}"></div>
+</body>
+</html>

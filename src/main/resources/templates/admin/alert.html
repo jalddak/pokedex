@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head-layout :: header(~{::title}, ~{::link})}">
+
+    <title>경고 - Pokédex 관리자</title>
+
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}">
+</head>
+<body>
+<!-- 중앙의 검은 줄 -->
+<div class="center-line"></div>
+
+<div class="container">
+    <div class="alert-container">
+        <h2 class="text-center mb-4">
+            <a class="text-decoration-none text-dark fw-bold" th:href="@{/}">Pokédex</a>
+        </h2>
+        <!-- 관리자 권한이 없다는 메시지 -->
+        <div class="alert-message">
+            <p class="alert-title mb-3">관리자 권한이 필요합니다.</p>
+            <p class="alert-description">현재 관리자 권한이 없어 이 페이지를 이용할 수 없습니다.
+                관리자 권한을 요청하고 싶다면 아래 버튼을 눌러주세요.
+                (관리자 권한 승인 확인을 하려면 재로그인 하셔야 합니다.)</p>
+        </div>
+
+        <form method="post" th:action th:object="${user}">
+            <!-- 요청 가능한 상태 -->
+            <button class="btn btn-contents w-100 mb-3"
+                    th:if="*{adminRequestStatus.name() == 'NONE' or adminRequestStatus.name() == 'REJECTED'}"
+                    type="submit">관리자 권한 요청
+            </button>
+
+            <!-- 요청 중이거나 승인된 상태 -->
+            <button class="btn btn-secondary w-100 mb-3" disabled style="border: 2px solid black"
+                    th:if="*{adminRequestStatus.name() == 'REQUESTED' or adminRequestStatus.name() == 'APPROVED'}"
+                    th:text="*{adminRequestStatus.name() == 'REQUESTED'} ? '요청 완료' : '승인됨'">
+                요청 상태
+            </button>
+        </form>
+
+        <!-- 재로그인 버튼 -->
+        <form method="post" th:action="@{/admin/logout}">
+            <button class="btn btn-contents w-100" type="submit">재로그인</button>
+        </form>
+    </div>
+
+    <!--    <script th:src="@{/assets/js/history-reload.js}"></script>-->
+</div>
+
+</body>
+</html>
