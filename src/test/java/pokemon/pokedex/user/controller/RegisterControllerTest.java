@@ -1,5 +1,6 @@
 package pokemon.pokedex.user.controller;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
+import pokemon.pokedex.user.dto.RegisterResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.RegisterService;
@@ -103,8 +106,9 @@ public class RegisterControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/register")
                         .flashAttr("user", registerDTO))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/register/success"))
-                .andExpect(request().sessionAttribute(SessionConst.USERNAME, registerDTO.getUsername()));
+                .andExpect(redirectedUrlPattern("/register/success/*"))
+                .andExpect(request().sessionAttribute(SessionConst.REGISTER_RESPONSE_DTO,
+                        Matchers.hasProperty("username", Matchers.is(registerDTO.getUsername()))));
     }
 
     @Test
@@ -145,23 +149,44 @@ public class RegisterControllerTest {
     @Test
     @DisplayName("GET 성공페이지 정상 작동")
     void registerSuccess_normal() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
-                        .sessionAttr(SessionConst.USERNAME, registerDTO.getUsername()))
+        RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
+                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register-success"))
                 .andExpect(model().attribute("username", registerDTO.getUsername()));
     }
 
     @Test
-    @DisplayName("GET 성공페이지 세션 없음")
+    @DisplayName("GET 성공페이지 세션 없음 (비정상)")
     void registerSuccess_no_session() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success"))
+        RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setId(123L);
+        sessionUserDTO.setLoginId("testLoginId");
+        sessionUserDTO.setUsername("testUsername");
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, "something"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
+
+    @Test
+    @DisplayName("GET 성공페이지 세션 DTO와 id 다름 (비정상)")
+    void registerSuccess_not_match_userId() throws Exception {
+        RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
+        registerResponseDTO.setId(registerResponseDTO.getId() + 1L);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, registerResponseDTO))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+    }
+
 }

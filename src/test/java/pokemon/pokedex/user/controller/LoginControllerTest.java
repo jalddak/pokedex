@@ -10,16 +10,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.LoginDTO;
+import pokemon.pokedex.user.dto.RegisterDTO;
+import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.LoginService;
+import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.stream.Stream;
 
@@ -36,9 +37,14 @@ public class LoginControllerTest {
     private LoginService loginService;
 
     @Autowired
+    private RegisterService registerService;
+
+    @Autowired
     private UserRepository userRepository;
 
     private LoginDTO loginDTO;
+
+    private RegisterResponseDTO registerResponseDTO;
 
     private static Stream<Arguments> provideErrorInputs() {
         return Stream.of(
@@ -53,9 +59,20 @@ public class LoginControllerTest {
         if (userRepository instanceof MemoryUserRepository) {
             ((MemoryUserRepository) userRepository).clear();
         }
+        String testLoginId = "testLoginId";
+        String testPassword = "testPassword123";
+
         loginDTO = new LoginDTO();
-        loginDTO.setLoginId("testLoginId");
-        loginDTO.setPassword("testPassword123");
+        loginDTO.setLoginId(testLoginId);
+        loginDTO.setPassword(testPassword);
+
+        RegisterDTO registerDTO = new RegisterDTO();
+        registerDTO.setUsername("testUsername");
+        registerDTO.setLoginId(testLoginId);
+        registerDTO.setEmail("testEmail@email.com");
+        registerDTO.setPassword(testPassword);
+        registerDTO.setConfirmPassword(testPassword);
+        registerResponseDTO = registerService.addUser(registerDTO);
     }
 
     @Test
@@ -70,12 +87,6 @@ public class LoginControllerTest {
     @Test
     @DisplayName("POST 로그인 성공")
     void loginSuccess() throws Exception {
-        User user = new User();
-        user.setLoginId(loginDTO.getLoginId());
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPassword(encoder.encode(loginDTO.getPassword()));
-
-        userRepository.save(user);
 
         SessionUserDTO expectedSessionUserDTO = loginService.checkLogin(loginDTO);
 
@@ -90,11 +101,7 @@ public class LoginControllerTest {
     @Test
     @DisplayName("로그인 실패 예외처리")
     void loginFail_exception() throws Exception {
-        User user = new User();
-        user.setLoginId(loginDTO.getLoginId());
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPassword(encoder.encode("anotherPassword123"));
-        userRepository.save(user);
+        loginDTO.setPassword("wrongPassword");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
@@ -123,17 +130,19 @@ public class LoginControllerTest {
     @Test
     @DisplayName("로그아웃 성공")
     void logoutSuccess() throws Exception {
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/logout"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, "something"))
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.USERNAME, "something"))
+                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

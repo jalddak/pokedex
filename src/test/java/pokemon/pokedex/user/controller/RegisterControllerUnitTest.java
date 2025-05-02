@@ -9,12 +9,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex._global.WebConfig;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
+import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.DuplicateLoginIdException;
 import pokemon.pokedex.user.service.RegisterService;
 
@@ -24,7 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(RegisterController.class)
+@WebMvcTest(controllers = RegisterController.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
 class RegisterControllerUnitTest {
 
     @Autowired
@@ -102,8 +107,8 @@ class RegisterControllerUnitTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/register")
                         .flashAttr("user", registerDTO))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/register/success"))
-                .andExpect(request().sessionAttribute(SessionConst.USERNAME, registerDTO.getUsername()));
+                .andExpect(redirectedUrlPattern("/register/success/*"))
+                .andExpect(request().sessionAttribute(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO));
 
 
         ArgumentCaptor<String> captor1 = ArgumentCaptor.forClass(String.class);
@@ -169,22 +174,43 @@ class RegisterControllerUnitTest {
     @Test
     @DisplayName("GET 성공페이지 정상 작동")
     void registerSuccess_normal() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
-                        .sessionAttr(SessionConst.USERNAME, "good"))
+        RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO();
+        registerResponseDTO.setId(1L);
+        registerResponseDTO.setUsername(registerDTO.getUsername());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
+                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register-success"))
-                .andExpect(model().attribute("username", "good"));
+                .andExpect(model().attribute("username", registerDTO.getUsername()));
     }
 
     @Test
-    @DisplayName("GET 성공페이지 세션 없음")
+    @DisplayName("GET 성공페이지 세션 없음 (비정상)")
     void registerSuccess_no_session() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success"))
+        RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO();
+        registerResponseDTO.setId(1L);
+        registerResponseDTO.setUsername(registerDTO.getUsername());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success")
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, "something"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, new SessionUserDTO()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+    }
+
+    @Test
+    @DisplayName("GET 성공페이지 세션 DTO와 id 다름 (비정상)")
+    void registerSuccess_not_match_userId() throws Exception {
+        RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO();
+        registerResponseDTO.setId(1L);
+        registerResponseDTO.setUsername(registerDTO.getUsername());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId() + 1L)
+                        .sessionAttr(SessionConst.SESSION_USER_DTO, registerResponseDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

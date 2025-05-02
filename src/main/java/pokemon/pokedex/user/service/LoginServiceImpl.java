@@ -25,6 +25,7 @@ public class LoginServiceImpl implements LoginService {
 
     private boolean checkPassword(String rawPassword, String encodedPassword) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (rawPassword == null) throw new LoginFailedException("Please check your loginId or password");
         return encoder.matches(rawPassword, encodedPassword);
     }
 }

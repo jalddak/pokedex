@@ -24,7 +24,7 @@ public class MemoryUserRepository implements UserRepository {
         user.setId(++sequence);
         user.setCreatedAt(LocalDateTime.now());
         store.put(user.getId(), user);
-        log.info("Saving user: {}", user.getLoginId());
+        log.debug("Saving user: {}", user.getLoginId());
         return user;
     }
 
