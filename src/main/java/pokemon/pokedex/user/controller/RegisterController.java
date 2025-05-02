@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
@@ -47,25 +44,30 @@ public class RegisterController {
 
         RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
         HttpSession session = request.getSession();
-        session.setAttribute(SessionConst.USERNAME, registerResponseDTO.getUsername());
+        session.setAttribute(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO);
         session.setMaxInactiveInterval(5);
 
-        return "redirect:/register/success";
+        return "redirect:/register/success/" + registerResponseDTO.getId();
     }
 
-    @GetMapping("/success")
+    @GetMapping("/success/{userId}")
     public String registerSuccess(
+            @PathVariable Long userId,
             HttpServletRequest request,
             Model model) {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute(SessionConst.USERNAME) == null) {
+        if (session == null || session.getAttribute(SessionConst.REGISTER_RESPONSE_DTO) == null) {
             return "redirect:/";
         }
 
-        String username = (String) session.getAttribute(SessionConst.USERNAME);
+        RegisterResponseDTO registerResponseDTO = (RegisterResponseDTO) session.getAttribute(SessionConst.REGISTER_RESPONSE_DTO);
+        if (registerResponseDTO.getId() == null || !registerResponseDTO.getId().equals(userId)) {
+            return "redirect:/";
+        }
+
         session.invalidate();
-        model.addAttribute("username", username);
+        model.addAttribute("username", registerResponseDTO.getUsername());
         return "register-success";
     }
 }

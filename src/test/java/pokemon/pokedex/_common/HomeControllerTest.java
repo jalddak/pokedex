@@ -31,6 +31,8 @@ class HomeControllerTest {
     @DisplayName("로그인 홈")
     void loginHome() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setId(1L);
+        sessionUserDTO.setLoginId("testLoginId");
         sessionUserDTO.setUsername("testUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")

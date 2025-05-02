@@ -4,11 +4,19 @@ import jakarta.servlet.Filter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import pokemon.pokedex._common.filter.NoCacheFilter;
+import pokemon.pokedex.user.interceptor.GuestOnlyInterceptor;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new GuestOnlyInterceptor())
+                .addPathPatterns("/login", "/register");
+    }
 
     @Bean
     public FilterRegistrationBean noCacheFilter() {
