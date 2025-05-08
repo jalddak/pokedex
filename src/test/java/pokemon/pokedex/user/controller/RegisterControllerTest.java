@@ -12,11 +12,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.RegisterService;
 
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RegisterControllerTest {
+public class RegisterControllerTest extends ClearMemory {
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,10 +78,6 @@ public class RegisterControllerTest {
 
     @BeforeEach
     void setUp() {
-        if (userRepository instanceof MemoryUserRepository) {
-            ((MemoryUserRepository) userRepository).clear();
-        }
-
         registerDTO = new RegisterDTO();
         registerDTO.setUsername("testUsername");
         registerDTO.setLoginId("testLoginId");
@@ -183,8 +179,8 @@ public class RegisterControllerTest {
         RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
         registerResponseDTO.setId(registerResponseDTO.getId() + 1L);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, registerResponseDTO))
+        mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId() - 1L)
+                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

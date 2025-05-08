@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.exception.DuplicateLoginIdException;

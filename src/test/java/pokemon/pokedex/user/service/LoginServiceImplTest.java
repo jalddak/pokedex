@@ -42,6 +42,7 @@ class LoginServiceImplTest {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());
         user.setPassword(encodedPassword);
+        user.setIsDeleted(false);
         doReturn(Optional.of(user)).when(userRepository).findByLoginId(any(String.class));
 
         SessionUserDTO sessionUserDTO = loginServiceImpl.checkLogin(loginDTO);
@@ -54,8 +55,8 @@ class LoginServiceImplTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 예외")
-    void checkLogin_fail_exception() {
+    @DisplayName("로그인 실패 예외 - 패스워드 불일치")
+    void checkLogin_fail_exception_password_wrong() {
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setLoginId("testLoginId");
         loginDTO.setPassword("testPassword");
@@ -65,6 +66,27 @@ class LoginServiceImplTest {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode("anotherPassword");
         user.setPassword(encodedPassword);
+        user.setIsDeleted(false);
+        doReturn(Optional.of(user)).when(userRepository).findByLoginId(any(String.class));
+
+        assertThatThrownBy(() -> loginServiceImpl.checkLogin(loginDTO))
+                .isInstanceOf(LoginFailedException.class);
+
+    }
+
+    @Test
+    @DisplayName("로그인 실패 예외 - 이미 삭제된 유저")
+    void checkLogin_fail_exception_deleted_user() {
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setLoginId("testLoginId");
+        loginDTO.setPassword("testPassword");
+
+        User user = new User();
+        user.setLoginId(loginDTO.getLoginId());
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());
+        user.setPassword(encodedPassword);
+        user.setIsDeleted(true);
         doReturn(Optional.of(user)).when(userRepository).findByLoginId(any(String.class));
 
         assertThatThrownBy(() -> loginServiceImpl.checkLogin(loginDTO))

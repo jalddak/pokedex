@@ -1,5 +1,6 @@
 package pokemon.pokedex.user.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.session.registry.SessionRegistry;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
@@ -38,6 +41,9 @@ class LoginControllerUnitTest {
 
     @MockitoBean
     private LoginService loginService;
+
+    @MockitoBean
+    private SessionRegistry sessionRegistry;
 
     private LoginDTO loginDTO;
 
@@ -77,6 +83,56 @@ class LoginControllerUnitTest {
                         .flashAttr("user", loginDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
+                .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO));
+
+        ArgumentCaptor<LoginDTO> captor = ArgumentCaptor.forClass(LoginDTO.class);
+        verify(loginService).checkLogin(captor.capture());
+
+        LoginDTO usedloginDTO = captor.getValue();
+        assertThat(usedloginDTO).isEqualTo(loginDTO);
+    }
+
+    @Test
+    @DisplayName("POST 로그인 성공 - 이전 세션 무효화")
+    void loginSuccess_before_session_invalidate() throws Exception {
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setLoginId(loginDTO.getLoginId());
+
+        doReturn(sessionUserDTO).when(loginService).checkLogin(any(LoginDTO.class));
+
+        MockHttpSession session = new MockHttpSession();
+        String sessionId = session.getId();
+
+        HttpSession firstSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .flashAttr("user", loginDTO)
+                        .session(session))
+                .andReturn().getRequest().getSession(false);
+        String firstSessionId = firstSession.getId();
+
+        HttpSession secondSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .flashAttr("user", loginDTO)
+                        .session(session))
+                .andReturn().getRequest().getSession(false);
+        String secondSessionId = secondSession.getId();
+
+        assertThat(firstSessionId).isNotEqualTo(sessionId);
+        assertThat(secondSessionId).isNotEqualTo(sessionId);
+        assertThat(secondSessionId).isNotEqualTo(firstSessionId);
+    }
+
+    @Test
+    @DisplayName("POST 로그인 성공 - redirectURI")
+    void loginSuccess_redirectURI() throws Exception {
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setLoginId(loginDTO.getLoginId());
+
+        doReturn(sessionUserDTO).when(loginService).checkLogin(any(LoginDTO.class));
+        String redirectURI = "testRedirectURI";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/login?redirectURI=" + redirectURI)
+                        .flashAttr("user", loginDTO))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl(redirectURI))
                 .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO));
 
         ArgumentCaptor<LoginDTO> captor = ArgumentCaptor.forClass(LoginDTO.class);

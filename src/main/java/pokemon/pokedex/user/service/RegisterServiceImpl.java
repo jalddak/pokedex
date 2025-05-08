@@ -21,8 +21,8 @@ public class RegisterServiceImpl implements RegisterService {
         User requestUser = User.createByRegisterDto(registerDTO);
         requestUser.setPassword(encodePassword(requestUser.getPassword()));
 
-        User responseUser = userRepository.save(requestUser);
-        return RegisterResponseDTO.createByUser(responseUser);
+        User savedUser = userRepository.save(requestUser);
+        return RegisterResponseDTO.createByUser(savedUser);
     }
 
     private String encodePassword(String rawPassword) {

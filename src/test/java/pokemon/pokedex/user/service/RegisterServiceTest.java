@@ -6,11 +6,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import pokemon.pokedex.ClearMemory;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.exception.DuplicateLoginIdException;
-import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
-public class RegisterServiceTest {
+public class RegisterServiceTest extends ClearMemory {
 
     @Autowired
     private RegisterService registerService;
@@ -30,10 +30,6 @@ public class RegisterServiceTest {
 
     @BeforeEach
     void setUp() {
-        if (userRepository instanceof MemoryUserRepository) {
-            ((MemoryUserRepository) userRepository).clear();
-        }
-
         registerDTO = new RegisterDTO();
         registerDTO.setLoginId("testLoginId");
         registerDTO.setUsername("testUsername");
@@ -47,13 +43,16 @@ public class RegisterServiceTest {
     void addUser() {
         RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
 
-        assertThat(registerResponseDTO.getUsername()).isEqualTo(registerDTO.getUsername());
-    }
+        User findUser = userRepository.findByLoginId(registerDTO.getLoginId())
+                .orElse(null);
 
-    @Test
-    @DisplayName("중복 아이디 아니면 정상작동")
-    void validateDuplicatedLoginId_normal() {
-        registerService.validateDuplicatedLoginId(registerDTO.getLoginId());
+        assertThat(registerResponseDTO.getUsername()).isEqualTo(registerDTO.getUsername());
+        assertThat(findUser).isNotNull();
+        assertThat(findUser.getLoginId()).isEqualTo(registerDTO.getLoginId());
+        assertThat(findUser.getUsername()).isEqualTo(registerDTO.getUsername());
+        assertThat(findUser.getEmail()).isEqualTo(registerDTO.getEmail());
+        assertThat(findUser.getPassword()).isNotNull();
+        assertThat(registerResponseDTO.getId()).isEqualTo(findUser.getId());
     }
 
     @Test
@@ -77,6 +76,12 @@ public class RegisterServiceTest {
         log.info("registerDTO password: {}", registerDTO.getPassword());
         log.info("user password: {}", user.getPassword());
         log.info("samePasswordUser password: {}", samePasswordUser.getPassword());
+    }
+
+    @Test
+    @DisplayName("중복 아이디 아니면 정상작동")
+    void validateDuplicatedLoginId_normal() {
+        registerService.validateDuplicatedLoginId(registerDTO.getLoginId());
     }
 
     @Test

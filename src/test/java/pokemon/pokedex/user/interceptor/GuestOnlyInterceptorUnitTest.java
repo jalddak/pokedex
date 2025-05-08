@@ -16,8 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.session.registry.SessionRegistry;
 import pokemon.pokedex.user.controller.LoginController;
 import pokemon.pokedex.user.controller.RegisterController;
 import pokemon.pokedex.user.dto.LoginDTO;
@@ -41,6 +42,9 @@ class GuestOnlyInterceptorUnitTest {
 
     @MockitoBean
     private RegisterService registerService;
+
+    @MockitoBean
+    private SessionRegistry sessionRegistry;
 
     private static Stream<Arguments> provideArguments() {
         return Stream.of(
@@ -77,7 +81,7 @@ class GuestOnlyInterceptorUnitTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/login", "/register"})
+    @ValueSource(strings = {"/login", "/register", "/login?redirectURI=/admin"})
     @DisplayName("POST 유저 접근")
     public void loginUser_post(String url) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -88,7 +92,7 @@ class GuestOnlyInterceptorUnitTest {
     }
 
     @TestConfiguration
-    static class GuestOnlyInterceptorConfiguration implements WebMvcConfigurer {
+    static class TestConfig implements WebMvcConfigurer {
 
         @Override
         public void addInterceptors(InterceptorRegistry registry) {

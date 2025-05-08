@@ -18,6 +18,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public SessionUserDTO checkLogin(LoginDTO loginDTO) {
         return userRepository.findByLoginId(loginDTO.getLoginId())
+                .filter(u -> !u.getIsDeleted())
                 .filter(u -> checkPassword(loginDTO.getPassword(), u.getPassword()))
                 .map(SessionUserDTO::createByUser)
                 .orElseThrow(() -> new LoginFailedException("Please check your loginId or password"));

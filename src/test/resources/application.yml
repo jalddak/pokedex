@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: test
+
+logging:
+  level:
+    pokemon.pokedex: debug
+
+server:
+  servlet:
+    session:
+      timeout: 1m
