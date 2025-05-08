@@ -10,11 +10,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import pokemon.pokedex._global.SessionConst;
+import org.springframework.web.bind.annotation.RequestParam;
+import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.session.registry.SessionRegistry;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
 import pokemon.pokedex.user.service.LoginService;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Controller
@@ -22,6 +27,7 @@ import pokemon.pokedex.user.service.LoginService;
 public class LoginController {
 
     private final LoginService loginService;
+    private final SessionRegistry sessionRegistry;
 
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("user") LoginDTO loginDTO) {
@@ -33,6 +39,7 @@ public class LoginController {
     public String login(
             @ModelAttribute("user") @Valid LoginDTO loginDTO,
             BindingResult bindingResult,
+            @RequestParam(defaultValue = "/") String redirectURI,
             HttpServletRequest request) {
         log.debug("LoginController: login 시도 {}", loginDTO.getLoginId());
 
@@ -47,11 +54,16 @@ public class LoginController {
             return "login-form";
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
-        session.setMaxInactiveInterval(1800);
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
 
-        return "redirect:/";
+        session = request.getSession();
+        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
+        log.debug("[{}] session create", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        log.debug("sessionTimeout: {}s", session.getMaxInactiveInterval());
+        sessionRegistry.addSession(sessionUserDTO.getId(), session);
+
+        return "redirect:" + redirectURI;
     }
 
     @PostMapping("/logout")

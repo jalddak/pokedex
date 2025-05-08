@@ -1,5 +1,6 @@
 package pokemon.pokedex._common;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +9,13 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @WebMvcTest(controllers = HomeController.class,
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
@@ -20,6 +23,13 @@ class HomeControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void setup() {
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new HomeController())
+                .build();
+    }
 
     @Test
     @DisplayName("일반 홈")
@@ -38,9 +48,8 @@ class HomeControllerUnitTest {
         sessionUserDTO.setUsername("testUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
+                        .requestAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("login-home"))
-                .andExpect(model().attribute("user", sessionUserDTO));
+                .andExpect(view().name("login-home"));
     }
 }

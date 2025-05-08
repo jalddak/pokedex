@@ -1,4 +1,4 @@
-package pokemon.pokedex._global;
+package pokemon.pokedex._global.session;
 
 public class SessionConst {
     public static final String REGISTER_RESPONSE_DTO = "registerResponseDTO";

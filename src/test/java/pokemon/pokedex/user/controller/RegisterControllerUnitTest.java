@@ -14,8 +14,8 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
@@ -210,7 +210,7 @@ class RegisterControllerUnitTest {
         registerResponseDTO.setUsername(registerDTO.getUsername());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId() + 1L)
-                        .sessionAttr(SessionConst.SESSION_USER_DTO, registerResponseDTO))
+                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

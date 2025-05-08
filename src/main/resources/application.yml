@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: pokedex
+  messages:
+    basename: messages,errors
+
+server:
+  servlet:
+    session:
+      tracking-modes:
+        - cookie
+  error:
+    include-message: always
+
+logging:
+  level:
+    pokemon.pokedex: debug

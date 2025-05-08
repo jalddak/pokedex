@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
@@ -52,7 +52,7 @@ public class GuestOnlyInterceptorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/login", "/register"})
+    @ValueSource(strings = {"/login", "/register", "/login?redirectURI=/admin"})
     @DisplayName("GET 로그인 유저 접근")
     void loginUser_get(String url) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(url)

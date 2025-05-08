@@ -2,16 +2,21 @@ package pokemon.pokedex.user.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Repository
 public class MemoryUserRepository implements UserRepository {
 
-    private static final Map<Long, User> store = new HashMap<>();
+    private static final Map<Long, User> store = new ConcurrentHashMap<>();
     private static long sequence = 0L;
 
     public void clear() {
@@ -46,5 +51,16 @@ public class MemoryUserRepository implements UserRepository {
     @Override
     public Optional<User> findByLoginId(String loginId) {
         return findAll().stream().filter(user -> user.getLoginId().equals(loginId)).findFirst();
+    }
+
+    @Override
+    public int updateAdminRequestStatusById(Long id, AdminRequestStatus status) {
+        return Optional.ofNullable(store.get(id))
+                .filter(u -> !u.getAdminRequestStatus().equals(status))
+                .map(u -> {
+                    u.setAdminRequestStatus(status);
+                    return 1;
+                })
+                .orElse(0);
     }
 }

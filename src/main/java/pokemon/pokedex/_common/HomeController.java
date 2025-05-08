@@ -1,28 +1,23 @@
 package pokemon.pokedex._common;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.dto.SessionUserDTO;
+import pokemon.pokedex._global.session.SessionConst;
 
 @Slf4j
 @Controller
 public class HomeController {
 
     @GetMapping
-    public String home(
-            @SessionAttribute(value = SessionConst.SESSION_USER_DTO, required = false) SessionUserDTO sessionUserDTO,
-            Model model) {
+    public String home(HttpServletRequest request) {
         log.debug("HomeController: home");
 
-        if (sessionUserDTO == null) {
+        if (request.getAttribute(SessionConst.SESSION_USER_DTO) == null) {
             return "home";
         }
 
-        model.addAttribute("user", sessionUserDTO);
         return "login-home";
     }
 }

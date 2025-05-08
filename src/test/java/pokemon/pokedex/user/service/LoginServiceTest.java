@@ -6,18 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import pokemon.pokedex.ClearMemory;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.exception.LoginFailedException;
-import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-class LoginServiceTest {
+class LoginServiceTest extends ClearMemory {
 
     @Autowired
     private LoginService loginService;
@@ -29,9 +29,6 @@ class LoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        if (userRepository instanceof MemoryUserRepository) {
-            ((MemoryUserRepository) userRepository).clear();
-        }
         loginDTO = new LoginDTO();
         loginDTO.setLoginId("testLoginId");
         loginDTO.setPassword("testPassword");
@@ -44,6 +41,7 @@ class LoginServiceTest {
         User user = new User();
         user.setLoginId(loginDTO.getLoginId());
         user.setPassword(encoder.encode(loginDTO.getPassword()));
+        user.setIsDeleted(false);
         userRepository.save(user);
 
         SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
@@ -51,12 +49,27 @@ class LoginServiceTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 예외처리")
-    void checkLogin_fail_exception() {
+    @DisplayName("로그인 실패 예외처리 - 패스워드 불일치")
+    void checkLogin_fail_exception_password_wrong() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         User user = new User();
         user.setLoginId(loginDTO.getLoginId());
         user.setPassword(encoder.encode("anotherPassword"));
+        user.setIsDeleted(false);
+        userRepository.save(user);
+
+        assertThatThrownBy(() -> loginService.checkLogin(loginDTO))
+                .isInstanceOf(LoginFailedException.class);
+    }
+
+    @Test
+    @DisplayName("로그인 실패 예외처리 - 이미 삭제된 유저")
+    void checkLogin_fail_exception_deleted_user() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        User user = new User();
+        user.setLoginId(loginDTO.getLoginId());
+        user.setPassword(encoder.encode(loginDTO.getPassword()));
+        user.setIsDeleted(true);
         userRepository.save(user);
 
         assertThatThrownBy(() -> loginService.checkLogin(loginDTO))

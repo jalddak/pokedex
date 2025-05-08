@@ -1,5 +1,6 @@
 package pokemon.pokedex.user.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,25 +11,27 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.LoginService;
 import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class LoginControllerTest {
+public class LoginControllerTest extends ClearMemory {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,9 +59,6 @@ public class LoginControllerTest {
 
     @BeforeEach
     void setUp() {
-        if (userRepository instanceof MemoryUserRepository) {
-            ((MemoryUserRepository) userRepository).clear();
-        }
         String testLoginId = "testLoginId";
         String testPassword = "testPassword123";
 
@@ -97,6 +97,46 @@ public class LoginControllerTest {
                 .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO,
                         Matchers.samePropertyValuesAs(expectedSessionUserDTO)));
     }
+
+    @Test
+    @DisplayName("POST 로그인 성공 - 이전 세션 무효화")
+    void loginSuccess_before_session_invalidate() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        String sessionId = session.getId();
+
+        HttpSession firstSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .flashAttr("user", loginDTO)
+                        .session(session))
+                .andReturn().getRequest().getSession(false);
+        String firstSessionId = firstSession.getId();
+
+        HttpSession secondSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .flashAttr("user", loginDTO)
+                        .session(session))
+                .andReturn().getRequest().getSession(false);
+        String secondSessionId = secondSession.getId();
+
+        assertThat(firstSessionId).isNotEqualTo(sessionId);
+        assertThat(secondSessionId).isNotEqualTo(sessionId);
+        assertThat(secondSessionId).isNotEqualTo(firstSessionId);
+    }
+
+    @Test
+    @DisplayName("POST 로그인 성공 - redirectURI")
+    void loginSuccess_redirectURI() throws Exception {
+
+        String redirectURI = "testRedirectURI";
+        SessionUserDTO expectedSessionUserDTO = loginService.checkLogin(loginDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/login?redirectURI=" + redirectURI)
+                        .flashAttr("user", loginDTO))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl(redirectURI))
+                .andExpect(request().sessionAttribute(SessionConst.SESSION_USER_DTO,
+                        Matchers.samePropertyValuesAs(expectedSessionUserDTO)));
+    }
+
 
     @Test
     @DisplayName("로그인 실패 예외처리")
