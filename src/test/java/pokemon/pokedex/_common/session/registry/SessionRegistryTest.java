@@ -1,4 +1,4 @@
-package pokemon.pokedex._global.session.registry;
+package pokemon.pokedex._common.session.registry;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex._common.session.registry.SessionRegistry;
 import pokemon.pokedex.user.dto.LoginDTO;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;

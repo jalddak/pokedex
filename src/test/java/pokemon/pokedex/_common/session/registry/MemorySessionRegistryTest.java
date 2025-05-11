@@ -1,4 +1,4 @@
-package pokemon.pokedex._global.session.registry;
+package pokemon.pokedex._common.session.registry;
 
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.AfterEach;
@@ -9,7 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpSession;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._common.session.registry.MemorySessionRegistry;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 import java.util.List;

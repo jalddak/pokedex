@@ -4,8 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import pokemon.pokedex._global.session.registry.MemorySessionRegistry;
-import pokemon.pokedex._global.session.registry.SessionRegistry;
+import pokemon.pokedex._common.session.registry.MemorySessionRegistry;
+import pokemon.pokedex._common.session.registry.SessionRegistry;
 import pokemon.pokedex.user.repository.MemoryUserRepository;
 import pokemon.pokedex.user.repository.UserRepository;
 

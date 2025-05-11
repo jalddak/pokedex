@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pokemon.pokedex._common.HomeController;
 import pokemon.pokedex._global.WebConfig;
-import pokemon.pokedex._global.session.registry.SessionRegistry;
+import pokemon.pokedex._common.session.registry.SessionRegistry;
 import pokemon.pokedex.admin.AdminController;
 import pokemon.pokedex.user.controller.LoginController;
 import pokemon.pokedex.user.controller.RegisterController;

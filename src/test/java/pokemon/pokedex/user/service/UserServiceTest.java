@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import pokemon.pokedex.ClearMemory;
-import pokemon.pokedex._global.session.SessionConst;
-import pokemon.pokedex._global.session.registry.SessionRegistry;
+import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex._common.session.registry.SessionRegistry;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.SessionUserDTO;
@@ -125,7 +125,7 @@ class UserServiceTest extends ClearMemory {
         assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
 
         userService.requestAdminRole(123L);
-        
+
         assertThat(userRepository.findAll()).isEmpty();
         assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
     }
