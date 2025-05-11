@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 

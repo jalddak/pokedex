@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 @Slf4j

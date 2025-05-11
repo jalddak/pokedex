@@ -1,4 +1,4 @@
-package pokemon.pokedex._global.session.registry;
+package pokemon.pokedex._common.session.registry;
 
 import jakarta.servlet.http.HttpSession;
 

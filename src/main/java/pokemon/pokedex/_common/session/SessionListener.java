@@ -1,11 +1,11 @@
-package pokemon.pokedex._global.session;
+package pokemon.pokedex._common.session;
 
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pokemon.pokedex._global.session.registry.MemorySessionRegistry;
+import pokemon.pokedex._common.session.registry.MemorySessionRegistry;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

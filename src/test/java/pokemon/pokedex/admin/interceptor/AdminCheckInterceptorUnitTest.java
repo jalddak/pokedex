@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import pokemon.pokedex._global.WebConfig;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.admin.AdminController;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.Role;

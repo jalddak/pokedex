@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
 

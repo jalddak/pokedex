@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pokemon.pokedex._global.WebConfig;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
 

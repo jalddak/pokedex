@@ -1,9 +1,9 @@
-package pokemon.pokedex._global.session.registry;
+package pokemon.pokedex._common.session.registry;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pokemon.pokedex._global.session.SessionConst;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 import java.util.List;
