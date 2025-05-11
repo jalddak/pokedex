@@ -7,16 +7,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex.WebMvcTestWithExclude;
 import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex._global.session.registry.SessionRegistry;
 import pokemon.pokedex.user.controller.LoginController;
@@ -30,8 +27,7 @@ import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {LoginController.class, RegisterController.class},
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
+@WebMvcTestWithExclude({LoginController.class, RegisterController.class})
 class GuestOnlyInterceptorUnitTest {
 
     @Autowired

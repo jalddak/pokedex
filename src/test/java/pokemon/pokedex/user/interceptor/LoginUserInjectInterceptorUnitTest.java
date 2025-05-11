@@ -3,16 +3,13 @@ package pokemon.pokedex.user.interceptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import pokemon.pokedex.WebMvcTestWithExclude;
 import pokemon.pokedex._common.HomeController;
-import pokemon.pokedex._global.WebConfig;
 import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.Role;
@@ -20,8 +17,7 @@ import pokemon.pokedex.user.dto.SessionUserDTO;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {HomeController.class},
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
+@WebMvcTestWithExclude(HomeController.class)
 class LoginUserInjectInterceptorUnitTest {
 
     @Autowired

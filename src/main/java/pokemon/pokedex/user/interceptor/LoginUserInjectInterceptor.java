@@ -4,12 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 @Slf4j
+@Component
 public class LoginUserInjectInterceptor implements HandlerInterceptor {
 
     @Override
@@ -32,5 +34,10 @@ public class LoginUserInjectInterceptor implements HandlerInterceptor {
             log.debug("로그인 된 사용자: {}, model 주입", sessionUserDTO.getLoginId());
             modelAndView.addObject("user", sessionUserDTO);
         }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

@@ -3,12 +3,14 @@ package pokemon.pokedex.admin.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 @Slf4j
+@Component
 public class AdminCheckInterceptor implements HandlerInterceptor {
 
     @Override
@@ -22,5 +24,10 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
         }
 
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }
