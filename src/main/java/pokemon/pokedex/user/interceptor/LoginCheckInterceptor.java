@@ -3,20 +3,20 @@ package pokemon.pokedex.user.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import pokemon.pokedex._global.session.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
 
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
     private final UserService userService;
-
-    public LoginCheckInterceptor(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -52,5 +52,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }
