@@ -31,12 +31,9 @@ class LoginUserInjectInterceptorLogicTest {
     }
 
     @Test
-    @DisplayName("로그인 유저 접근 - request에 유저 정보 주입")
+    @DisplayName("preHandle 로그인 유저 접근 - request에 유저 정보 주입")
     void preHandle_loginUser() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
 
         session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
         request.setSession(session);
@@ -48,24 +45,7 @@ class LoginUserInjectInterceptorLogicTest {
     }
 
     @Test
-    @DisplayName("로그인 유저 접근 - 세션 무효화 발생")
-    void preHandle_loginUser_session_invalidate() throws Exception {
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
-
-        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
-        request.setSession(session);
-
-        boolean result = loginUserInjectInterceptor.preHandle(request, response, new Object());
-
-        assertThat(result).isTrue();
-        assertThat(request.getAttribute(SessionConst.SESSION_USER_DTO)).isEqualTo(sessionUserDTO);
-    }
-
-    @Test
-    @DisplayName("게스트 접근 - 유저 주입 없음 - 세션 없음")
+    @DisplayName("preHandle 게스트 접근 - 유저 주입 없음 - 세션 없음")
     void preHandle_guest_no_session() throws Exception {
         boolean result = loginUserInjectInterceptor.preHandle(request, response, new Object());
 
@@ -75,15 +55,7 @@ class LoginUserInjectInterceptorLogicTest {
     }
 
     @Test
-    @DisplayName("게스트 접근 - 유저 주입 없음 - 세션 없음")
-    void postHandle_guest_no_session() throws Exception {
-
-        loginUserInjectInterceptor.postHandle(request, response, new Object(), modelAndView);
-        assertThat(modelAndView.getModel()).doesNotContainKey("user");
-    }
-
-    @Test
-    @DisplayName("게스트 접근 - 유저 주입 없음 - 로그인 세션 없음")
+    @DisplayName("preHandle 게스트 접근 - 유저 주입 없음 - 로그인 세션 없음")
     void preHandle_guest_no_loginSession() throws Exception {
         session.setAttribute("temp", "value");
         request.setSession(session);
@@ -96,7 +68,28 @@ class LoginUserInjectInterceptorLogicTest {
     }
 
     @Test
-    @DisplayName("게스트 접근 - 유저 주입 없음 - 로그인 세션 없음")
+    @DisplayName("preHandle 로그인 유저 접근")
+    void postHandle_loginUser() throws Exception {
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+
+        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
+        request.setSession(session);
+
+        loginUserInjectInterceptor.preHandle(request, response, new Object());
+        loginUserInjectInterceptor.postHandle(request, response, new Object(), modelAndView);
+        assertThat(modelAndView.getModel()).containsEntry("user", sessionUserDTO);
+    }
+
+    @Test
+    @DisplayName("postHandle 게스트 접근 - 유저 주입 없음 - 세션 없음")
+    void postHandle_guest_no_session() throws Exception {
+
+        loginUserInjectInterceptor.postHandle(request, response, new Object(), modelAndView);
+        assertThat(modelAndView.getModel()).doesNotContainKey("user");
+    }
+
+    @Test
+    @DisplayName("postHandle 게스트 접근 - 유저 주입 없음 - 로그인 세션 없음")
     void postHandle_guest_no_loginSession() throws Exception {
 
         session.setAttribute("temp", "value");

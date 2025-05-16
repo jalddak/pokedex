@@ -19,28 +19,24 @@ public class ErrorCheckController {
 
     @GetMapping("/error-400")
     public String error400(HttpServletResponse response) throws IOException {
-        log.debug("error-400");
         response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         return "error/4xx";
     }
 
     @GetMapping("/error-404")
     public String error404(HttpServletResponse response) throws IOException {
-        log.debug("error-404");
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
         return "error/4xx";
     }
 
     @GetMapping("/error-500")
     public String error500(HttpServletResponse response) throws IOException {
-        log.debug("error-500");
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         return "error/4xx";
     }
 
     @GetMapping("/error-502")
     public String error502(HttpServletResponse response) throws IOException {
-        log.debug("error-502");
         response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
         return "error/4xx";
     }

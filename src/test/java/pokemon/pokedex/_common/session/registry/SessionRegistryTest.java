@@ -14,23 +14,25 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import pokemon.pokedex.ClearMemory;
-import pokemon.pokedex._common.session.registry.SessionRegistry;
+import pokemon.pokedex.__testutils.ClearMemory;
+import pokemon.pokedex.__testutils.TestDataFactory;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.LoginService;
-import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-class SessionRegistryTest extends ClearMemory {
+class SessionRegistryTest {
+
+    @Autowired
+    private ClearMemory clearMemory;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -39,57 +41,29 @@ class SessionRegistryTest extends ClearMemory {
     private SessionRegistry sessionRegistry;
 
     @Autowired
-    private RegisterService registerService;
-
-    @Autowired
     private LoginService loginService;
 
-    private LoginDTO loginDTO;
-    private LoginDTO loginDTO2;
-    private LoginDTO loginDTO3;
+    private LoginDTO adminLoginDTO;
+    private LoginDTO adminRequestLoginDTO;
+    private LoginDTO defaultLoginDTO;
 
     @BeforeEach
     void setUp() {
-        String testLoginId = "testLoginId";
-        String testLoginId2 = "testLoginId2";
-        String testLoginId3 = "testLoginId3";
-        String testPassword = "testPassword123";
-
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setUsername("testUsername");
-        registerDTO.setLoginId(testLoginId);
-        registerDTO.setEmail("testEmail@test.com");
-        registerDTO.setPassword(testPassword);
-        registerDTO.setConfirmPassword(testPassword);
-        registerService.addUser(registerDTO);
-
-        loginDTO = new LoginDTO();
-        loginDTO.setLoginId(testLoginId);
-        loginDTO.setPassword(testPassword);
-
-        registerDTO.setLoginId(testLoginId2);
-        registerService.addUser(registerDTO);
-        registerDTO.setLoginId(testLoginId3);
-        registerService.addUser(registerDTO);
-
-        loginDTO2 = new LoginDTO();
-        loginDTO2.setLoginId(testLoginId2);
-        loginDTO2.setPassword(testPassword);
-
-        loginDTO3 = new LoginDTO();
-        loginDTO3.setLoginId(testLoginId3);
-        loginDTO3.setPassword(testPassword);
+        clearMemory.clearMemory();
+        adminLoginDTO = createLoginDTO(adminInfos);
+        adminRequestLoginDTO = createLoginDTO(TestDataFactory.adminRequestInfos);
+        defaultLoginDTO = createLoginDTO(defaultInfos);
     }
 
     @Test
     @DisplayName("유저 한명 로그인")
     void addSession() {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", defaultLoginDTO.getLoginId());
+        formData.add("password", defaultLoginDTO.getPassword());
 
         webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -104,11 +78,11 @@ class SessionRegistryTest extends ClearMemory {
     @DisplayName("유저 한명이 여러 브라우저에서 로그인")
     void addSession_many_browser() {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", defaultLoginDTO.getLoginId());
+        formData.add("password", defaultLoginDTO.getPassword());
 
         webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -133,41 +107,41 @@ class SessionRegistryTest extends ClearMemory {
     @DisplayName("여러 유저 로그인")
     void addSession_many_users() {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
-        SessionUserDTO sessionUserDTO2 = loginService.checkLogin(loginDTO2);
-        SessionUserDTO sessionUserDTO3 = loginService.checkLogin(loginDTO3);
+        SessionUserDTO adminSessionUserDTO = loginService.checkLogin(adminLoginDTO);
+        SessionUserDTO adminRequestSessionUserDTO = loginService.checkLogin(adminRequestLoginDTO);
+        SessionUserDTO defaultSessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", adminLoginDTO.getLoginId());
+        formData.add("password", adminLoginDTO.getPassword());
         webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(formData)
                 .exchange();
 
         MultiValueMap<String, String> formData2 = new LinkedMultiValueMap<>();
-        formData2.add("loginId", loginDTO2.getLoginId());
-        formData2.add("password", loginDTO2.getPassword());
+        formData2.add("loginId", adminRequestLoginDTO.getLoginId());
+        formData2.add("password", adminRequestLoginDTO.getPassword());
         webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(formData2)
                 .exchange();
 
         MultiValueMap<String, String> formData3 = new LinkedMultiValueMap<>();
-        formData3.add("loginId", loginDTO3.getLoginId());
-        formData3.add("password", loginDTO3.getPassword());
+        formData3.add("loginId", defaultLoginDTO.getLoginId());
+        formData3.add("password", defaultLoginDTO.getPassword());
         webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(formData3)
                 .exchange();
 
-        List<HttpSession> sessionsByUserId = sessionRegistry.getSessionsByUserId(sessionUserDTO.getId());
+        List<HttpSession> sessionsByUserId = sessionRegistry.getSessionsByUserId(adminSessionUserDTO.getId());
         assertThat(sessionsByUserId.size()).isEqualTo(1);
 
-        List<HttpSession> sessionsByUserId2 = sessionRegistry.getSessionsByUserId(sessionUserDTO2.getId());
+        List<HttpSession> sessionsByUserId2 = sessionRegistry.getSessionsByUserId(adminRequestSessionUserDTO.getId());
         assertThat(sessionsByUserId2.size()).isEqualTo(1);
 
-        List<HttpSession> sessionsByUserId3 = sessionRegistry.getSessionsByUserId(sessionUserDTO3.getId());
+        List<HttpSession> sessionsByUserId3 = sessionRegistry.getSessionsByUserId(defaultSessionUserDTO.getId());
         assertThat(sessionsByUserId3.size()).isEqualTo(1);
     }
 
@@ -175,11 +149,11 @@ class SessionRegistryTest extends ClearMemory {
     @DisplayName("유저 로그아웃")
     void removeSession() {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", defaultLoginDTO.getLoginId());
+        formData.add("password", defaultLoginDTO.getPassword());
 
         WebTestClient.ResponseSpec response = webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -202,7 +176,7 @@ class SessionRegistryTest extends ClearMemory {
         assertThat(beforeLogoutSessions.size()).isEqualTo(1);
 
         webTestClient.post().uri("/logout")
-                .cookie("JSESSIONID", sessionId) // "JSESSIONID"는 일반적인 세션 쿠키 이름
+                .cookie("JSESSIONID", sessionId)
                 .exchange();
 
         List<HttpSession> afterLogoutSessions = sessionRegistry.getSessionsByUserId(sessionUserDTO.getId());
@@ -214,11 +188,11 @@ class SessionRegistryTest extends ClearMemory {
     @DisplayName("세션 타임아웃")
     void timeoutSession() throws InterruptedException {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", defaultLoginDTO.getLoginId());
+        formData.add("password", defaultLoginDTO.getPassword());
 
         WebTestClient.ResponseSpec response = webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -240,12 +214,14 @@ class SessionRegistryTest extends ClearMemory {
         List<HttpSession> beforeTimeoutSessions = sessionRegistry.getSessionsByUserId(sessionUserDTO.getId());
         assertThat(beforeTimeoutSessions.size()).isEqualTo(1);
 
+        // 타임아웃 설정을 해주고 sleep으로 기다린다.
         beforeTimeoutSessions.get(0).setMaxInactiveInterval(1);
         log.debug("sessionTimeout: {}s", beforeTimeoutSessions.get(0).getMaxInactiveInterval());
         TimeUnit.SECONDS.sleep(2);
 
+        // 요청을 한 번 더 불러오지 않는다면, 내장 서버에서 타임아웃을 체크하는 백그라운드 시간이 될 때까지 타임아웃이 된 세션인지 파악이 불가능해서 임시 요청 하나 보냄.
         webTestClient.get()
-                .uri("/home")
+                .uri("/")
                 .cookie("JSESSIONID", sessionId)  // 요청할 URL
                 .exchange();
 
@@ -259,11 +235,11 @@ class SessionRegistryTest extends ClearMemory {
     @DisplayName("세션 타임아웃, 백그라운드 테스트")
     void timeoutSession_background() throws InterruptedException {
 
-        SessionUserDTO sessionUserDTO = loginService.checkLogin(loginDTO);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(defaultLoginDTO);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("loginId", loginDTO.getLoginId());
-        formData.add("password", loginDTO.getPassword());
+        formData.add("loginId", defaultLoginDTO.getLoginId());
+        formData.add("password", defaultLoginDTO.getPassword());
 
         WebTestClient.ResponseSpec response = webTestClient.post().uri("/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -285,6 +261,11 @@ class SessionRegistryTest extends ClearMemory {
         List<HttpSession> beforeTimeoutSessions = sessionRegistry.getSessionsByUserId(sessionUserDTO.getId());
         assertThat(beforeTimeoutSessions.size()).isEqualTo(1);
 
+        // tomcat 내장 타임아웃 체크 시간은 60초 간격이라고함.
+        // 그리고 appication.yml에 자동 타임아웃 시간은 최소 분단위로 최소가 1분이다.
+        // 따라서 테스트 최소 maxInactiveInterval 인 1분으로 application.yml에 설정해둬도
+        // 더해서 60초를 기다려야하니, 2분은 기다려야 테스트가 완료됨.
+        // 물론 바로 위 처럼 세션 타임아웃 시간을 수동으로 1초로 설정해도 61초는 기다려야함.
         TimeUnit.SECONDS.sleep(beforeTimeoutSessions.get(0).getMaxInactiveInterval() + 60);
 
         List<HttpSession> afterTimeoutSessions = sessionRegistry.getSessionsByUserId(sessionUserDTO.getId());

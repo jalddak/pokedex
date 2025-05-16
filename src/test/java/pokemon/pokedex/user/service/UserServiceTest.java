@@ -1,23 +1,23 @@
 package pokemon.pokedex.user.service;
 
-import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
-import pokemon.pokedex.ClearMemory;
-import pokemon.pokedex._global.SessionConst;
+import pokemon.pokedex.__testutils.ClearMemory;
 import pokemon.pokedex._common.session.registry.SessionRegistry;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
-import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @SpringBootTest
-class UserServiceTest extends ClearMemory {
+class UserServiceTest {
 
     @Autowired
     private UserService userService;
@@ -28,15 +28,20 @@ class UserServiceTest extends ClearMemory {
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    @Autowired
+    private ClearMemory clearMemory;
+    @Autowired
+    private LoginService loginService;
+
+    @BeforeEach
+    void setUp() {
+        clearMemory.clearMemory();
+    }
+
     @Test
     @DisplayName("삭제되지 않은 유저")
     void getRealUserDTO() {
-        User user = new User();
-        user.setIsDeleted(false);
-        User savedUser = userRepository.save(user);
-
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(savedUser.getId());
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(defaultInfos));
 
         SessionUserDTO result = userService.getRealUserDTO(sessionUserDTO);
 
@@ -46,12 +51,8 @@ class UserServiceTest extends ClearMemory {
     @Test
     @DisplayName("삭제된 유저")
     void getRealUserDTO_deletedUser() {
-        User user = new User();
-        user.setIsDeleted(true);
-        User savedUser = userRepository.save(user);
-
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(savedUser.getId());
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(defaultInfos));
+        userRepository.deleteById(sessionUserDTO.getId());
 
         SessionUserDTO result = userService.getRealUserDTO(sessionUserDTO);
 
@@ -62,7 +63,7 @@ class UserServiceTest extends ClearMemory {
     @DisplayName("없는 유저")
     void getRealUserDTO_not_existUser() {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
+        sessionUserDTO.setId(-1L);
 
         SessionUserDTO result = userService.getRealUserDTO(sessionUserDTO);
 
@@ -73,17 +74,9 @@ class UserServiceTest extends ClearMemory {
     @DisplayName("requestAdminRole_성공")
     void requestAdminRole_success() {
         AdminRequestStatus expectedAdminRequestStatus = AdminRequestStatus.REQUESTED;
-        User user = new User();
-        user.setAdminRequestStatus(AdminRequestStatus.NONE);
-        User savedUser = userRepository.save(user);
-        Long userId = savedUser.getId();
 
-        HttpSession session = new MockHttpSession();
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(userId);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.NONE);
-        session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
-        sessionRegistry.addSession(userId, session);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(alreadySessionInfos));
+        Long userId = sessionUserDTO.getId();
 
         userService.requestAdminRole(userId);
 
@@ -97,16 +90,13 @@ class UserServiceTest extends ClearMemory {
     @DisplayName("requestAdminRole_안함")
     void requestAdminRole_nothing() {
         AdminRequestStatus adminRequestStatus = AdminRequestStatus.REQUESTED;
-        User user = new User();
-        user.setAdminRequestStatus(adminRequestStatus);
-        User savedUser = userRepository.save(user);
-        Long userId = savedUser.getId();
 
-        HttpSession session = new MockHttpSession();
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(userId);
-        sessionUserDTO.setAdminRequestStatus(adminRequestStatus);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(adminRequestInfos));
+        Long userId = sessionUserDTO.getId();
+
+        MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
+
         sessionRegistry.addSession(userId, session);
 
         userService.requestAdminRole(userId);
@@ -121,12 +111,10 @@ class UserServiceTest extends ClearMemory {
     @DisplayName("requestAdminRole_유저 없으면 아무 변화 없음")
     void requestAdminRole_nothing_not_error() {
 
-        assertThat(userRepository.findAll()).isEmpty();
         assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
 
         userService.requestAdminRole(123L);
 
-        assertThat(userRepository.findAll()).isEmpty();
         assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
     }
 }

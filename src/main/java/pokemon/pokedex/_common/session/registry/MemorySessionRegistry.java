@@ -21,18 +21,22 @@ public class MemorySessionRegistry implements SessionRegistry {
     @Override
     public void addSession(Long userId, HttpSession session) {
         userSessionMap.computeIfAbsent(userId, key -> ConcurrentHashMap.newKeySet()).add(session);
+        log.debug("Saved session in SessionRegistry, userId: {}, sessionId: {}", userId, session.getId());
     }
 
     @Override
     public void removeSession(HttpSession session) {
 
         SessionUserDTO sessionUserDTO = (SessionUserDTO) session.getAttribute(SessionConst.SESSION_USER_DTO);
-        if (sessionUserDTO == null) return;
+        if (sessionUserDTO == null) {
+            log.debug("Session invalidation occurred unrelated to login, sessionId: {}", session.getId());
+            return;
+        }
         Long userId = sessionUserDTO.getId();
 
         userSessionMap.computeIfPresent(userId, (key, sessions) -> {
             sessions.remove(session);
-            log.debug("Removed session userId: {}, sessionId: {}", userId, session.getId());
+            log.debug("Deleted session in SessionRegistry, userId: {}, sessionId: {}", userId, session.getId());
             return sessions.isEmpty() ? null : sessions;
         });
     }
@@ -45,7 +49,13 @@ public class MemorySessionRegistry implements SessionRegistry {
                 .toList();
     }
 
+    /**
+     * 테스트에서만 사용하는 메서드
+     */
     public void clear() {
+        for (Long userId : userSessionMap.keySet()) {
+            userSessionMap.get(userId).forEach(HttpSession::invalidate);
+        }
         userSessionMap.clear();
     }
 }

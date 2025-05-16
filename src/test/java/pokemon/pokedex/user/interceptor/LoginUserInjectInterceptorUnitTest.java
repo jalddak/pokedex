@@ -1,18 +1,15 @@
 package pokemon.pokedex.user.interceptor;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import pokemon.pokedex.WebMvcTestWithExclude;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._common.HomeController;
 import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.domain.AdminRequestStatus;
-import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,15 +20,18 @@ class LoginUserInjectInterceptorUnitTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new HomeController())
+                .addInterceptors(new LoginUserInjectInterceptor())
+                .build();
+    }
+
     @Test
     @DisplayName("GET 로그인 유저 접근")
     void loginUser() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
-        sessionUserDTO.setRole(Role.ADMIN);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.APPROVED);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
@@ -48,21 +48,9 @@ class LoginUserInjectInterceptorUnitTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeDoesNotExist("user"));
 
-
         mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .sessionAttr("temp", "value"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeDoesNotExist("user"));
-    }
-
-    @TestConfiguration
-    static class TestConfig implements WebMvcConfigurer {
-
-        @Override
-        public void addInterceptors(InterceptorRegistry registry) {
-            registry.addInterceptor(new LoginUserInjectInterceptor())
-                    .addPathPatterns("/**")
-                    .excludePathPatterns("/assets/**", "/login", "/register", "/logout", "/admin/logout");
-        }
     }
 }

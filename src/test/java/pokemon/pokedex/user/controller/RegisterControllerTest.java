@@ -1,5 +1,6 @@
 package pokemon.pokedex.user.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,30 +13,31 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex.__testutils.ClearMemory;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RegisterControllerTest extends ClearMemory {
+public class RegisterControllerTest {
+
+    @Autowired
+    private ClearMemory clearMemory;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private RegisterService registerService;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private RegisterDTO registerDTO;
 
@@ -78,12 +80,8 @@ public class RegisterControllerTest extends ClearMemory {
 
     @BeforeEach
     void setUp() {
-        registerDTO = new RegisterDTO();
-        registerDTO.setUsername("testUsername");
-        registerDTO.setLoginId("testLoginId");
-        registerDTO.setEmail("testEmail@email.com");
-        registerDTO.setPassword("testPassword123");
-        registerDTO.setConfirmPassword("testPassword123");
+        clearMemory.clearMemory();
+        registerDTO = createRegisterDTO(registerInfos);
     }
 
     @Test
@@ -111,10 +109,10 @@ public class RegisterControllerTest extends ClearMemory {
     @DisplayName("POST 회원가입 중복 아이디 예외 체크")
     void registerSubmit_Exception() throws Exception {
 
-        registerService.addUser(registerDTO);
+        RegisterDTO duplicatedLoginIdRegisterDTO = createRegisterDTO(defaultInfos);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/register")
-                        .flashAttr("user", registerDTO))
+                        .flashAttr("user", duplicatedLoginIdRegisterDTO))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register-form"))
                 .andExpect(model().attributeHasFieldErrorCode("user", "loginId", "duplicateLoginId"));
@@ -151,7 +149,11 @@ public class RegisterControllerTest extends ClearMemory {
                         .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register-success"))
-                .andExpect(model().attribute("username", registerDTO.getUsername()));
+                .andExpect(model().attribute("username", registerDTO.getUsername()))
+                .andDo(r -> {
+                    HttpSession session = r.getRequest().getSession(false);
+                    assertThat(session).isNull();
+                });
     }
 
     @Test
@@ -159,9 +161,7 @@ public class RegisterControllerTest extends ClearMemory {
     void registerSuccess_no_session() throws Exception {
         RegisterResponseDTO registerResponseDTO = registerService.addUser(registerDTO);
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(123L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
+        sessionUserDTO.setId(registerResponseDTO.getId() + 1);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId()))
                 .andExpect(status().is3xxRedirection())
@@ -170,7 +170,12 @@ public class RegisterControllerTest extends ClearMemory {
         mockMvc.perform(MockMvcRequestBuilders.get("/register/success/{userId}", registerResponseDTO.getId())
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"))
+                .andDo(r -> {
+                    HttpSession session = r.getRequest().getSession(false);
+                    assertThat(session).isNotNull();
+                    assertThat(session.getAttribute(SessionConst.SESSION_USER_DTO)).isEqualTo(sessionUserDTO);
+                });
     }
 
     @Test

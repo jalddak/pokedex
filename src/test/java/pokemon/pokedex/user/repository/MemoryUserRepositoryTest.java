@@ -1,6 +1,5 @@
 package pokemon.pokedex.user.repository;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,11 +17,6 @@ class MemoryUserRepositoryTest {
     @BeforeEach
     void setUp() {
         memoryUserRepository = new MemoryUserRepository();
-        memoryUserRepository.clear();
-    }
-
-    @AfterEach
-    void tearDown() {
         memoryUserRepository.clear();
     }
 
@@ -120,5 +114,18 @@ class MemoryUserRepositoryTest {
 
         int updateCnt = memoryUserRepository.updateAdminRequestStatusById(savedUser.getId(), AdminRequestStatus.REQUESTED);
         assertThat(updateCnt).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("삭제 테스트")
+    void deletedById() {
+        User user = new User();
+        user.setLoginId("user");
+
+        User savedUser = memoryUserRepository.save(user);
+        memoryUserRepository.deleteById(savedUser.getId());
+
+        User findUser = memoryUserRepository.findById(savedUser.getId()).get();
+        assertThat(findUser.getIsDeleted()).isTrue();
     }
 }

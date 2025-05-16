@@ -1,6 +1,7 @@
 package pokemon.pokedex._test;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
@@ -15,6 +16,7 @@ import pokemon.pokedex.user.repository.UserRepository;
 /**
  * 메모리 기반 레포지토리로 실행 시 초기값을 넣어주기 위함.
  */
+@Slf4j
 @Component
 @Profile("memory")
 @RequiredArgsConstructor
@@ -58,9 +60,11 @@ public class TempDataInit {
         user2.setPassword(encoder.encode(user2.getPassword()));
         user2.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
 
+        log.debug("----- 초기값 세팅 시작 -----");
         userRepository.save(admin);
         userRepository.save(user1);
         userRepository.save(user2);
+        log.debug("----- 초기값 세팅 완료 -----");
     }
 
 }

@@ -3,8 +3,9 @@ package pokemon.pokedex.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex._common.session.registry.SessionRegistry;
+import pokemon.pokedex._global.LogMessage;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.repository.UserRepository;
@@ -29,20 +30,25 @@ public class UserServiceImpl implements UserService {
     public void requestAdminRole(Long userId) {
         int updateCnt = userRepository.updateAdminRequestStatusById(userId, AdminRequestStatus.REQUESTED);
 
-        if (updateCnt == 0) return;
+        if (updateCnt == 0) {
+            log.debug("Nothing updated in DB, userId = {}", userId);
+            return;
+        }
 
         updateSession(userId);
     }
 
     private void updateSession(Long userId) {
+        log.debug("Updated userId: {}'s adminRequestStatus in user DB", userId);
         sessionRegistry.getSessionsByUserId(userId)
                 .forEach(session -> {
                     try {
                         SessionUserDTO sessionUserDTO = (SessionUserDTO) session.getAttribute(SessionConst.SESSION_USER_DTO);
                         sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
                         session.setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
+                        log.debug("Updated session for user, userId: {}, sessionId: {}", userId, session.getId());
                     } catch (Exception e) {
-                        log.warn("세션 업데이트 중 예외 발생: {}", userId, e);
+                        log.warn(LogMessage.SESSION_EXCEPTION_LOG, e);
                     }
                 });
     }

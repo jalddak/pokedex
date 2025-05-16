@@ -8,13 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.domain.AdminRequestStatus;
-import pokemon.pokedex.user.domain.Role;
-import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.UserRepository;
+import pokemon.pokedex.user.service.LoginService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -24,23 +22,12 @@ class AdminCheckInterceptorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    private LoginService loginService;
 
     @Test
     @DisplayName("일반 유저 접속")
     void preHandle_normal() throws Exception {
-        User user = new User();
-        user.setIsDeleted(false);
-        user.setRole(Role.NORMAL);
-        user.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
-        User savedUser = userRepository.save(user);
-
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(savedUser.getId());
-        sessionUserDTO.setLoginId("testLogin");
-        sessionUserDTO.setUsername("testNormal");
-        sessionUserDTO.setRole(Role.NORMAL);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.NONE);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(defaultInfos));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin")
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
@@ -52,18 +39,7 @@ class AdminCheckInterceptorTest {
     @Test
     @DisplayName("관리자 접속")
     void preHandle_admin() throws Exception {
-        User user = new User();
-        user.setIsDeleted(false);
-        user.setRole(Role.ADMIN);
-        user.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
-        User savedUser = userRepository.save(user);
-
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(savedUser.getId());
-        sessionUserDTO.setLoginId("testLogin");
-        sessionUserDTO.setUsername("testAdmin");
-        sessionUserDTO.setRole(Role.ADMIN);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.NONE);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(adminInfos));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin")
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))

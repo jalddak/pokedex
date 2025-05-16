@@ -4,25 +4,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.admin.AdminController;
-import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = AdminController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
+@WebMvcTestWithExclude(AdminController.class)
 class NormalUserOnlyInterceptorUnitTest {
 
     @Autowired
@@ -44,7 +39,6 @@ class NormalUserOnlyInterceptorUnitTest {
     void preHandle_normal() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
         sessionUserDTO.setRole(Role.NORMAL);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.NONE);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/alert")
                         .requestAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
