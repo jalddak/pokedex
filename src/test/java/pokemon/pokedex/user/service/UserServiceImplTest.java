@@ -7,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex._common.session.registry.SessionRegistry;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.SessionUserDTO;
@@ -88,30 +88,38 @@ class UserServiceImplTest {
         Long userId = 1L;
         AdminRequestStatus expectedAdminRequestStatus = AdminRequestStatus.REQUESTED;
 
+        doReturn(userId).when(sessionUserDTO).getId();
+        doReturn(AdminRequestStatus.NONE).when(sessionUserDTO).getAdminRequestStatus();
         doReturn(1).when(userRepository).updateAdminRequestStatusById(any(Long.class), any(AdminRequestStatus.class));
         doReturn(List.of(session)).when(sessionRegistry).getSessionsByUserId(any(Long.class));
         doReturn(sessionUserDTO).when(session).getAttribute(any(String.class));
 
-        userService.requestAdminRole(userId);
+        userService.requestAdminRole(sessionUserDTO);
 
-        verify(userRepository).updateAdminRequestStatusById(userId, expectedAdminRequestStatus);
-        verify(sessionRegistry).getSessionsByUserId(userId);
-        verify(session).getAttribute(SessionConst.SESSION_USER_DTO);
-        verify(sessionUserDTO).setAdminRequestStatus(expectedAdminRequestStatus);
-        verify(session).setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
+        doReturn(AdminRequestStatus.REJECTED).when(sessionUserDTO).getAdminRequestStatus();
+        userService.requestAdminRole(sessionUserDTO);
+
+        verify(userRepository, times(2)).updateAdminRequestStatusById(userId, expectedAdminRequestStatus);
+        verify(sessionRegistry, times(2)).getSessionsByUserId(userId);
+        verify(session, times(2)).getAttribute(SessionConst.SESSION_USER_DTO);
+        verify(sessionUserDTO, times(2)).setAdminRequestStatus(expectedAdminRequestStatus);
+        verify(session, times(2)).setAttribute(SessionConst.SESSION_USER_DTO, sessionUserDTO);
     }
 
     @Test
-    @DisplayName("requestAdminRole_안함")
+    @DisplayName("requestAdminRole_안함_AdminRequestStatus가 APPROVE나 REQUESTED 일때")
     void requestAdminRole_nothing() {
         Long userId = 1L;
         AdminRequestStatus expectedAdminRequestStatus = AdminRequestStatus.REQUESTED;
 
-        doReturn(0).when(userRepository).updateAdminRequestStatusById(any(Long.class), any(AdminRequestStatus.class));
+        doReturn(userId).when(sessionUserDTO).getId();
+        doReturn(AdminRequestStatus.REQUESTED).when(sessionUserDTO).getAdminRequestStatus();
+        
+        userService.requestAdminRole(sessionUserDTO);
+        doReturn(AdminRequestStatus.APPROVED).when(sessionUserDTO).getAdminRequestStatus();
+        userService.requestAdminRole(sessionUserDTO);
 
-        userService.requestAdminRole(userId);
-
-        verify(userRepository).updateAdminRequestStatusById(userId, expectedAdminRequestStatus);
+        verify(userRepository, never()).updateAdminRequestStatusById(userId, expectedAdminRequestStatus);
         verify(sessionRegistry, never()).getSessionsByUserId(userId);
     }
 }

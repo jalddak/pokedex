@@ -21,5 +21,5 @@ public interface UserRepository {
 
     int updateAdminRequestStatusById(Long id, AdminRequestStatus status);
 
-    public void deleteById(Long id);
+    void deleteById(Long id);
 }

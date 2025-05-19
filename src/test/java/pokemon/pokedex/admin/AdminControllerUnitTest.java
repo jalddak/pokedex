@@ -61,13 +61,13 @@ class AdminControllerUnitTest {
     @Test
     void requestAdminRole() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(123L);
+        sessionUserDTO.setId(-1L);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/admin/alert")
                         .requestAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/alert"));
 
-        verify(userService).requestAdminRole(sessionUserDTO.getId());
+        verify(userService).requestAdminRole(sessionUserDTO);
     }
 }

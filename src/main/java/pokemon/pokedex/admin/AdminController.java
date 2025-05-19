@@ -52,7 +52,7 @@ public class AdminController {
         SessionUserDTO sessionUserDTO = (SessionUserDTO) request.getAttribute(SessionConst.SESSION_USER_DTO);
 
         log.debug("Request admin role, userId: {}, loginId: {}", sessionUserDTO.getId(), sessionUserDTO.getLoginId());
-        userService.requestAdminRole(sessionUserDTO.getId());
+        userService.requestAdminRole(sessionUserDTO);
 
         return "redirect:/admin/alert";
     }

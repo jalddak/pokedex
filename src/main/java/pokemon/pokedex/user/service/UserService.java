@@ -6,5 +6,5 @@ public interface UserService {
 
     SessionUserDTO getRealUserDTO(SessionUserDTO sessionUserDTO);
 
-    void requestAdminRole(Long userId);
+    void requestAdminRole(SessionUserDTO sessionUserDTO);
 }

@@ -27,9 +27,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void requestAdminRole(Long userId) {
-        int updateCnt = userRepository.updateAdminRequestStatusById(userId, AdminRequestStatus.REQUESTED);
-
+    public void requestAdminRole(SessionUserDTO sessionUserDTO) {
+        long userId = sessionUserDTO.getId();
+        AdminRequestStatus adminRequestStatus = sessionUserDTO.getAdminRequestStatus();
+        int updateCnt = 0;
+        if (adminRequestStatus == AdminRequestStatus.NONE || adminRequestStatus == AdminRequestStatus.REJECTED)
+            updateCnt = userRepository.updateAdminRequestStatusById(userId, AdminRequestStatus.REQUESTED);
+        
         if (updateCnt == 0) {
             log.debug("Nothing updated in DB, userId = {}", userId);
             return;

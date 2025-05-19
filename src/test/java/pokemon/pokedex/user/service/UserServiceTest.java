@@ -78,7 +78,7 @@ class UserServiceTest {
         SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(alreadySessionInfos));
         Long userId = sessionUserDTO.getId();
 
-        userService.requestAdminRole(userId);
+        userService.requestAdminRole(sessionUserDTO);
 
         assertThat(userRepository.findById(userId).get().getAdminRequestStatus()).isEqualTo(expectedAdminRequestStatus);
         SessionUserDTO findSessionUserDTO = (SessionUserDTO) sessionRegistry.getSessionsByUserId(userId).get(0)
@@ -99,7 +99,7 @@ class UserServiceTest {
 
         sessionRegistry.addSession(userId, session);
 
-        userService.requestAdminRole(userId);
+        userService.requestAdminRole(sessionUserDTO);
 
         assertThat(userRepository.findById(userId).get().getAdminRequestStatus()).isEqualTo(adminRequestStatus);
         SessionUserDTO findSessionUserDTO = (SessionUserDTO) sessionRegistry.getSessionsByUserId(userId).get(0)
@@ -111,10 +111,12 @@ class UserServiceTest {
     @DisplayName("requestAdminRole_유저 없으면 아무 변화 없음")
     void requestAdminRole_nothing_not_error() {
 
-        assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
 
-        userService.requestAdminRole(123L);
+        assertThat(sessionRegistry.getSessionsByUserId(-1L)).isEmpty();
+        SessionUserDTO sessionUserDTO = new SessionUserDTO();
+        sessionUserDTO.setId(-1L);
+        userService.requestAdminRole(sessionUserDTO);
 
-        assertThat(sessionRegistry.getSessionsByUserId(123L)).isEmpty();
+        assertThat(sessionRegistry.getSessionsByUserId(-1L)).isEmpty();
     }
 }
