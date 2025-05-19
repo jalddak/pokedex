@@ -29,7 +29,6 @@ public class MemoryUserRepository implements UserRepository {
         user.setId(++sequence);
         user.setCreatedAt(LocalDateTime.now());
         store.put(user.getId(), user);
-        log.debug("Saving user: {}", user.getLoginId());
         return user;
     }
 
@@ -62,5 +61,13 @@ public class MemoryUserRepository implements UserRepository {
                     return 1;
                 })
                 .orElse(0);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        findById(id).ifPresent(u -> {
+            u.setDeletedAt(LocalDateTime.now());
+            u.setIsDeleted(true);
+        });
     }
 }

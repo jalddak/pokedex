@@ -20,4 +20,6 @@ public interface UserRepository {
     Optional<User> findByLoginId(String loginId);
 
     int updateAdminRequestStatusById(Long id, AdminRequestStatus status);
+
+    public void deleteById(Long id);
 }

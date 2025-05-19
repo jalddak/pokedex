@@ -3,6 +3,8 @@ spring:
     name: pokedex
   messages:
     basename: messages,errors
+  profiles:
+    active: memory
 
 server:
   servlet:

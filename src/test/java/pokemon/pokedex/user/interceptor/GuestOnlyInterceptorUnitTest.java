@@ -1,5 +1,6 @@
 package pokemon.pokedex.user.interceptor;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -7,15 +8,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import pokemon.pokedex.WebMvcTestWithExclude;
-import pokemon.pokedex._global.SessionConst;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._common.session.registry.SessionRegistry;
+import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.controller.LoginController;
 import pokemon.pokedex.user.controller.RegisterController;
 import pokemon.pokedex.user.dto.LoginDTO;
@@ -25,6 +24,8 @@ import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTestWithExclude({LoginController.class, RegisterController.class})
@@ -49,6 +50,16 @@ class GuestOnlyInterceptorUnitTest {
         );
     }
 
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(
+                        new LoginController(loginService, sessionRegistry),
+                        new RegisterController(registerService))
+                .addInterceptors(new GuestOnlyInterceptor())
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("provideArguments")
     @DisplayName("GET 게스트 접근")
@@ -61,6 +72,8 @@ class GuestOnlyInterceptorUnitTest {
     @Test
     @DisplayName("POST 게스트 접근")
     public void guest_post() throws Exception {
+        doReturn(new SessionUserDTO()).when(loginService).checkLogin(any(LoginDTO.class));
+
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", new LoginDTO()))
                 .andExpect(status().isOk());
@@ -84,17 +97,5 @@ class GuestOnlyInterceptorUnitTest {
                         .sessionAttr(SessionConst.SESSION_USER_DTO, new SessionUserDTO()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
-        ;
     }
-
-    @TestConfiguration
-    static class TestConfig implements WebMvcConfigurer {
-
-        @Override
-        public void addInterceptors(InterceptorRegistry registry) {
-            registry.addInterceptor(new GuestOnlyInterceptor())
-                    .addPathPatterns("/login", "/register");
-        }
-    }
-
 }

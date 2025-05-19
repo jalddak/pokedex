@@ -1,7 +1,10 @@
 package pokemon.pokedex._test;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import pokemon.pokedex.user.domain.AdminRequestStatus;
@@ -12,15 +15,16 @@ import pokemon.pokedex.user.repository.UserRepository;
 
 /**
  * 메모리 기반 레포지토리로 실행 시 초기값을 넣어주기 위함.
- * 다른 레포지토리로 실행 시, @Component 주석처리
  */
+@Slf4j
 @Component
+@Profile("memory")
 @RequiredArgsConstructor
-public class TestData {
+public class TempDataInit {
 
     private final UserRepository userRepository;
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -56,9 +60,11 @@ public class TestData {
         user2.setPassword(encoder.encode(user2.getPassword()));
         user2.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
 
+        log.debug("----- 초기값 세팅 시작 -----");
         userRepository.save(admin);
         userRepository.save(user1);
         userRepository.save(user2);
+        log.debug("----- 초기값 세팅 완료 -----");
     }
 
 }

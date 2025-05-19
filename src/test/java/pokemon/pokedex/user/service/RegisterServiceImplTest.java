@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -35,11 +36,8 @@ class RegisterServiceImplTest {
     @Test
     @DisplayName("유저 추가")
     void addUser() {
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setLoginId("user");
-        registerDTO.setUsername("testUsername");
-        registerDTO.setPassword("testPassword");
-        User user = User.createByRegisterDto(registerDTO);
+        RegisterDTO registerDTO = createRegisterDTO(defaultInfos);
+        User user = createUser(defaultInfos);
         doReturn(user).when(userRepository).save(any(User.class));
 
         RegisterResponseDTO registerResponseDTO = registerServiceImpl.addUser(registerDTO);
@@ -48,18 +46,16 @@ class RegisterServiceImplTest {
         verify(userRepository).save(captor.capture());
 
         User usedUser = captor.getValue();
-        assertThat(usedUser.getLoginId()).isEqualTo(user.getLoginId());
-        assertThat(registerResponseDTO.getUsername()).isEqualTo(registerDTO.getUsername());
+        assertThat(usedUser.getLoginId()).isEqualTo(registerDTO.getLoginId());
+        assertThat(registerResponseDTO.getUsername()).isEqualTo(user.getUsername());
     }
 
     @Test
     @DisplayName("같은 비밀번호를 입력해도 다른 값이 나오는지 확인")
     void encodedPassword() {
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setPassword("test1234");
-        User user = User.createByRegisterDto(registerDTO);
+        RegisterDTO registerDTO = createRegisterDTO(defaultInfos);
 
-        doReturn(user).when(userRepository).save(any(User.class));
+        doReturn(new User()).when(userRepository).save(any(User.class));
 
         registerServiceImpl.addUser(registerDTO);
         registerServiceImpl.addUser(registerDTO);

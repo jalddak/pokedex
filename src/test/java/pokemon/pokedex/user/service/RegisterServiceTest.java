@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex.__testutils.ClearMemory;
 import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
@@ -15,10 +15,12 @@ import pokemon.pokedex.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static pokemon.pokedex.__testutils.TestDataFactory.createRegisterDTO;
+import static pokemon.pokedex.__testutils.TestDataFactory.registerInfos;
 
 @Slf4j
 @SpringBootTest
-public class RegisterServiceTest extends ClearMemory {
+public class RegisterServiceTest {
 
     @Autowired
     private RegisterService registerService;
@@ -28,14 +30,13 @@ public class RegisterServiceTest extends ClearMemory {
 
     private RegisterDTO registerDTO;
 
+    @Autowired
+    private ClearMemory clearMemory;
+
     @BeforeEach
     void setUp() {
-        registerDTO = new RegisterDTO();
-        registerDTO.setLoginId("testLoginId");
-        registerDTO.setUsername("testUsername");
-        registerDTO.setEmail("testEmail@email.com");
-        registerDTO.setPassword("testPassword123");
-        registerDTO.setConfirmPassword("testPassword123");
+        clearMemory.clearMemory();
+        registerDTO = createRegisterDTO(registerInfos);
     }
 
     @Test
@@ -58,8 +59,6 @@ public class RegisterServiceTest extends ClearMemory {
     @Test
     @DisplayName("같은 비밀번호를 입력해도 다른 값이 나오는지 확인")
     void encodedPassword() {
-        registerDTO.setPassword("test1234");
-
         RegisterDTO samePasswordDTO = new RegisterDTO();
         samePasswordDTO.setLoginId("samePasswordLoginId");
         samePasswordDTO.setPassword(registerDTO.getPassword());

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import pokemon.pokedex.WebMvcTestWithExclude;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 
@@ -39,9 +39,6 @@ class HomeControllerUnitTest {
     @DisplayName("로그인 홈")
     void loginHome() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .requestAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))

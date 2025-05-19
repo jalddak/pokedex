@@ -9,14 +9,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pokemon.pokedex._global.SessionConst;
-import pokemon.pokedex.user.domain.AdminRequestStatus;
-import pokemon.pokedex.user.domain.Role;
-import pokemon.pokedex.user.domain.User;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.UserRepository;
-import pokemon.pokedex.user.service.UserService;
+import pokemon.pokedex.user.service.LoginService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.createLoginDTO;
+import static pokemon.pokedex.__testutils.TestDataFactory.defaultInfos;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,36 +24,22 @@ class LoginUserInjectInterceptorTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserService userService;
+    private LoginService loginService;
 
     @Test
     @DisplayName("GET 로그인 유저 접근")
     void loginUser() throws Exception {
-        User user = new User();
-        user.setIsDeleted(false);
-        user.setRole(Role.ADMIN);
-        User savedUser = userRepository.save(user);
 
-        SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(savedUser.getId());
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
-        sessionUserDTO.setRole(Role.ADMIN);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.APPROVED);
+        SessionUserDTO sessionUserDTO = loginService.checkLogin(createLoginDTO(defaultInfos));
 
-        SessionUserDTO expectedSessionUserDTO = userService.getRealUserDTO(sessionUserDTO);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin")
+        mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/home"))
+                .andExpect(view().name("login-home"))
                 .andExpect(request().attribute(SessionConst.SESSION_USER_DTO,
-                        Matchers.samePropertyValuesAs(expectedSessionUserDTO)))
+                        Matchers.samePropertyValuesAs(sessionUserDTO)))
                 .andExpect(model().attribute("user",
-                        Matchers.samePropertyValuesAs(expectedSessionUserDTO)));
+                        Matchers.samePropertyValuesAs(sessionUserDTO)));
     }
 
     @Test
@@ -63,12 +47,14 @@ class LoginUserInjectInterceptorTest {
     void guestUser() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/"))
                 .andExpect(status().isOk())
+                .andExpect(view().name("home"))
                 .andExpect(model().attributeDoesNotExist("user"));
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
                         .sessionAttr("temp", "value"))
                 .andExpect(status().isOk())
+                .andExpect(view().name("home"))
                 .andExpect(model().attributeDoesNotExist("user"));
     }
 }

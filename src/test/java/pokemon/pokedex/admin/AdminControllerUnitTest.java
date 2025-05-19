@@ -1,25 +1,23 @@
 package pokemon.pokedex.admin;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import pokemon.pokedex._global.WebConfig;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = AdminController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebConfig.class}))
+@WebMvcTestWithExclude(AdminController.class)
 class AdminControllerUnitTest {
 
     @Autowired
@@ -46,12 +44,15 @@ class AdminControllerUnitTest {
     void logout() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/admin/logout"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin"));
+                .andExpect(redirectedUrl("/admin"))
+                .andDo(r -> {
+                    HttpSession session = r.getRequest().getSession(false);
+                    assertThat(session).isNull();
+                });
     }
 
     @Test
     void alert() throws Exception {
-
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/alert"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/alert"));
@@ -59,7 +60,6 @@ class AdminControllerUnitTest {
 
     @Test
     void requestAdminRole() throws Exception {
-
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
         sessionUserDTO.setId(123L);
 

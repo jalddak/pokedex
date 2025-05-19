@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import pokemon.pokedex._global.LogMessage;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.SessionUserDTO;
@@ -17,11 +18,14 @@ public class NormalUserOnlyInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         SessionUserDTO sessionUserDTO = (SessionUserDTO) request.getAttribute(SessionConst.SESSION_USER_DTO);
-        if (sessionUserDTO.getRole() != Role.ADMIN) return true;
+        if (sessionUserDTO.getRole() == Role.ADMIN) {
+            response.sendRedirect(request.getContextPath() + "/admin");
+            log.debug(LogMessage.ADMIN_REQUEST_LOG + ", Redirecting to /admin", request.getRequestURI(), sessionUserDTO.getLoginId());
+            return false;
+        }
 
-        log.debug("관리자가 관리자 경고 페이지에 접근: {}", sessionUserDTO.getLoginId());
-        response.sendRedirect(request.getContextPath() + "/admin");
-        return false;
+        log.debug(LogMessage.NORMAL_REQUEST_LOG, request.getRequestURI(), sessionUserDTO.getLoginId());
+        return true;
     }
 
     @Override

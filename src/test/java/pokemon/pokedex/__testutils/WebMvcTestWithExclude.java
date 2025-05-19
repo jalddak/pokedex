@@ -1,9 +1,10 @@
-package pokemon.pokedex;
+package pokemon.pokedex.__testutils;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.annotation.AliasFor;
+import pokemon.pokedex._common.filter.NoCacheFilter;
 import pokemon.pokedex._global.WebConfig;
 import pokemon.pokedex.admin.interceptor.AdminCheckInterceptor;
 import pokemon.pokedex.admin.interceptor.NormalUserOnlyInterceptor;
@@ -24,7 +25,8 @@ import java.lang.annotation.*;
                 NormalUserOnlyInterceptor.class,
                 GuestOnlyInterceptor.class,
                 LoginCheckInterceptor.class,
-                LoginUserInjectInterceptor.class
+                LoginUserInjectInterceptor.class,
+                NoCacheFilter.class
         }))
 public @interface WebMvcTestWithExclude {
 

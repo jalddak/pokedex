@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex.WebMvcTestWithExclude;
+import pokemon.pokedex.__testutils.WebMvcTestWithExclude;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.RegisterDTO;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.createRegisterDTO;
+import static pokemon.pokedex.__testutils.TestDataFactory.registerInfos;
 
 @WebMvcTestWithExclude(RegisterController.class)
 class RegisterControllerUnitTest {
@@ -75,12 +77,7 @@ class RegisterControllerUnitTest {
 
     @BeforeEach
     void setUp() {
-        registerDTO = new RegisterDTO();
-        registerDTO.setUsername("testUsername");
-        registerDTO.setLoginId("testLoginId");
-        registerDTO.setEmail("testEmail@email.com");
-        registerDTO.setPassword("testPassword123");
-        registerDTO.setConfirmPassword("testPassword123");
+        registerDTO = createRegisterDTO(registerInfos);
     }
 
     @Test
@@ -97,7 +94,6 @@ class RegisterControllerUnitTest {
     void registerSubmit_normal() throws Exception {
 
         RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO();
-        registerResponseDTO.setUsername(registerDTO.getUsername());
         doReturn(registerResponseDTO).when(registerService).addUser(any(RegisterDTO.class));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/register")

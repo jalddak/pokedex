@@ -1,6 +1,9 @@
 package pokemon.pokedex._test;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
@@ -9,7 +12,9 @@ import java.io.IOException;
  * 에러 페이지 확인용. 확인하고 나면 @Controller 주석처리
  */
 
-//@Controller
+@Slf4j
+@Controller
+@Profile({"dev", "memory"})
 public class ErrorCheckController {
 
     @GetMapping("/error-400")

@@ -11,13 +11,15 @@ import org.springframework.stereotype.Component;
 import pokemon.pokedex._common.log.LogTrace;
 import pokemon.pokedex._common.log.TraceStatus;
 
+import java.util.Stack;
+
 @Slf4j
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class LogTraceAspect {
 
-    private static String REQUEST_TRACE_STATUS = "traceStatus";
+    private static final String INTERCEPTOR_TRACE_STATUS = "interceptorTraceStatus";
     private final LogTrace logTrace;
 
     @Pointcut("execution(* pokemon.pokedex..*(..))")
@@ -82,9 +84,16 @@ public class LogTraceAspect {
             status = logTrace.begin(message);
 
             log.info("{}", joinPoint.getSignature().toShortString());
-            request.setAttribute(REQUEST_TRACE_STATUS, status);
+            // 인터페이스 계층별로 requestAttribute에 넣어줘야함
+            if (request.getAttribute(INTERCEPTOR_TRACE_STATUS) == null) {
+                request.setAttribute(INTERCEPTOR_TRACE_STATUS, new Stack<TraceStatus>());
+            }
+            Stack<TraceStatus> stack = (Stack<TraceStatus>) request.getAttribute(INTERCEPTOR_TRACE_STATUS);
+            stack.push(status);
 
             Object result = joinPoint.proceed();
+            // 만약 preHandle에서 false 반환하면 afterCompletion을 불러오지 않으므로 stack에서 status를 바로 빼줘야함
+            if (!(boolean) result) stack.pop();
 
             long resultTimeMs = System.currentTimeMillis() - status.getStartTimeMs();
             log.info("{} time={}ms", joinPoint.getSignature().toShortString(), resultTimeMs);
@@ -121,7 +130,8 @@ public class LogTraceAspect {
 
     @Around("myProject() && interceptor() && execution(* afterCompletion(..)) && args(request, ..)")
     public Object interceptorAfterCompletion(ProceedingJoinPoint joinPoint, HttpServletRequest request) throws Throwable {
-        TraceStatus status = (TraceStatus) request.getAttribute(REQUEST_TRACE_STATUS);
+        Stack<TraceStatus> stack = (Stack<TraceStatus>) request.getAttribute(INTERCEPTOR_TRACE_STATUS);
+        TraceStatus status = stack.pop();
         Long methodStartTimeMs = System.currentTimeMillis();
         try {
             log.info("{}", joinPoint.getSignature().toShortString());

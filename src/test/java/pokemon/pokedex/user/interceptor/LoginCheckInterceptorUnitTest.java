@@ -14,8 +14,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.admin.AdminController;
-import pokemon.pokedex.user.domain.AdminRequestStatus;
-import pokemon.pokedex.user.domain.Role;
 import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
 import pokemon.pokedex.user.service.UserService;
@@ -46,18 +44,7 @@ class LoginCheckInterceptorUnitTest {
     @DisplayName("GET 로그인 유저 접근")
     void loginUser_get() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
-        sessionUserDTO.setRole(Role.NORMAL);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
-
         SessionUserDTO realUserDTO = new SessionUserDTO();
-        realUserDTO.setId(1L);
-        realUserDTO.setLoginId("realLoginId");
-        realUserDTO.setUsername("realUsername");
-        realUserDTO.setRole(Role.ADMIN);
-        realUserDTO.setAdminRequestStatus(AdminRequestStatus.APPROVED);
 
         doReturn(realUserDTO).when(userService).getRealUserDTO(any(SessionUserDTO.class));
 
@@ -74,11 +61,6 @@ class LoginCheckInterceptorUnitTest {
     @DisplayName("GET 삭제된 유저 접근")
     void deletedUser_get() throws Exception {
         SessionUserDTO sessionUserDTO = new SessionUserDTO();
-        sessionUserDTO.setId(1L);
-        sessionUserDTO.setLoginId("testLoginId");
-        sessionUserDTO.setUsername("testUsername");
-        sessionUserDTO.setRole(Role.NORMAL);
-        sessionUserDTO.setAdminRequestStatus(AdminRequestStatus.REQUESTED);
 
         doReturn(null).when(userService).getRealUserDTO(any(SessionUserDTO.class));
 
@@ -93,8 +75,6 @@ class LoginCheckInterceptorUnitTest {
     @DisplayName("GET 비로그인(게스트) 유저 접근")
     void guest_get() throws Exception {
         RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO();
-        registerResponseDTO.setId(1L);
-        registerResponseDTO.setUsername("testUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin"))
                 .andExpect(status().is3xxRedirection())

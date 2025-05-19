@@ -1,6 +1,7 @@
 package pokemon.pokedex.user.controller;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,24 +15,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pokemon.pokedex.ClearMemory;
+import pokemon.pokedex.__testutils.ClearMemory;
 import pokemon.pokedex._global.SessionConst;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.RegisterDTO;
-import pokemon.pokedex.user.dto.RegisterResponseDTO;
 import pokemon.pokedex.user.dto.SessionUserDTO;
-import pokemon.pokedex.user.repository.UserRepository;
 import pokemon.pokedex.user.service.LoginService;
-import pokemon.pokedex.user.service.RegisterService;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pokemon.pokedex.__testutils.TestDataFactory.createLoginDTO;
+import static pokemon.pokedex.__testutils.TestDataFactory.defaultInfos;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-public class LoginControllerTest extends ClearMemory {
+public class LoginControllerTest {
+
+    @Autowired
+    private ClearMemory clearMemory;
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,40 +42,21 @@ public class LoginControllerTest extends ClearMemory {
     @Autowired
     private LoginService loginService;
 
-    @Autowired
-    private RegisterService registerService;
-
-    @Autowired
-    private UserRepository userRepository;
-
     private LoginDTO loginDTO;
-
-    private RegisterResponseDTO registerResponseDTO;
 
     private static Stream<Arguments> provideErrorInputs() {
         return Stream.of(
                 Arguments.of("loginId", null, "NotEmpty"),
                 Arguments.of("loginId", "", "NotEmpty"),
-                Arguments.of("password", null, "NotEmpty")
+                Arguments.of("password", null, "NotEmpty"),
+                Arguments.of("password", "", "NotEmpty")
         );
     }
 
     @BeforeEach
     void setUp() {
-        String testLoginId = "testLoginId";
-        String testPassword = "testPassword123";
-
-        loginDTO = new LoginDTO();
-        loginDTO.setLoginId(testLoginId);
-        loginDTO.setPassword(testPassword);
-
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setUsername("testUsername");
-        registerDTO.setLoginId(testLoginId);
-        registerDTO.setEmail("testEmail@email.com");
-        registerDTO.setPassword(testPassword);
-        registerDTO.setConfirmPassword(testPassword);
-        registerResponseDTO = registerService.addUser(registerDTO);
+        clearMemory.clearMemory();
+        loginDTO = createLoginDTO(defaultInfos);
     }
 
     @Test
@@ -105,28 +89,22 @@ public class LoginControllerTest extends ClearMemory {
         MockHttpSession session = new MockHttpSession();
         String sessionId = session.getId();
 
-        HttpSession firstSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        HttpSession newSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO)
                         .session(session))
                 .andReturn().getRequest().getSession(false);
-        String firstSessionId = firstSession.getId();
+        String newSessionId = newSession.getId();
 
-        HttpSession secondSession = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .flashAttr("user", loginDTO)
-                        .session(session))
-                .andReturn().getRequest().getSession(false);
-        String secondSessionId = secondSession.getId();
-
-        assertThat(firstSessionId).isNotEqualTo(sessionId);
-        assertThat(secondSessionId).isNotEqualTo(sessionId);
-        assertThat(secondSessionId).isNotEqualTo(firstSessionId);
+        log.debug("Previous session id: {}", sessionId);
+        log.debug("New sessionId: {}", newSessionId);
+        assertThat(newSessionId).isNotEqualTo(sessionId);
     }
 
     @Test
     @DisplayName("POST 로그인 성공 - redirectURI")
     void loginSuccess_redirectURI() throws Exception {
 
-        String redirectURI = "testRedirectURI";
+        String redirectURI = "/testRedirectURI";
         SessionUserDTO expectedSessionUserDTO = loginService.checkLogin(loginDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login?redirectURI=" + redirectURI)
@@ -174,17 +152,20 @@ public class LoginControllerTest extends ClearMemory {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"))
+                .andDo(r -> {
+                    HttpSession session = r.getRequest().getSession(false);
+                    assertThat(session).isNull();
+                });
 
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")
                         .sessionAttr(SessionConst.SESSION_USER_DTO, sessionUserDTO))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/logout")
-                        .sessionAttr(SessionConst.REGISTER_RESPONSE_DTO, registerResponseDTO))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"))
+                .andDo(r -> {
+                    HttpSession session = r.getRequest().getSession(false);
+                    assertThat(session).isNull();
+                });
     }
 
 }

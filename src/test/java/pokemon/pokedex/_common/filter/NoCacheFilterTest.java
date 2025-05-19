@@ -11,10 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pokemon.pokedex.user.dto.LoginDTO;
-import pokemon.pokedex.user.dto.RegisterDTO;
-import pokemon.pokedex.user.service.RegisterService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pokemon.pokedex.__testutils.TestDataFactory.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,9 +21,6 @@ public class NoCacheFilterTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private RegisterService registerService;
 
     @ParameterizedTest
     @ValueSource(strings = {"/login", "/register"})
@@ -39,17 +35,7 @@ public class NoCacheFilterTest {
     @Test
     @DisplayName("POST 필터에 걸리는 경우 (로그인 성공)")
     public void filter_post_login_success() throws Exception {
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setLoginId("testAdmin");
-        registerDTO.setUsername("testUsername");
-        registerDTO.setEmail("testEmail@email.com");
-        registerDTO.setPassword("testPassword123");
-        registerDTO.setConfirmPassword("testPassword123");
-        registerService.addUser(registerDTO);
-
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setLoginId("testAdmin");
-        loginDTO.setPassword("testPassword123");
+        LoginDTO loginDTO = createLoginDTO(defaultInfos);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
@@ -61,13 +47,16 @@ public class NoCacheFilterTest {
     @Test
     @DisplayName("POST 필터에 걸리는 경우 (로그인 실패)")
     public void filter_post_login_failed() throws Exception {
-
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setLoginId("testAdmin");
-        loginDTO.setPassword("testPassword123");
+        LoginDTO loginDTO = createLoginDTO(registerInfos);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .flashAttr("user", loginDTO))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
+                .andExpect(MockMvcResultMatchers.header().string("Pragma", "no-cache"));
+
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/login"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
                 .andExpect(MockMvcResultMatchers.header().string("Pragma", "no-cache"));
